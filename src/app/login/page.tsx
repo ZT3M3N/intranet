@@ -18,31 +18,65 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { loginUser } from "@/services/authService";
+import { LoginFormData } from "@/types/auth";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState<LoginFormData>({
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (error) setError("");
+  };
+
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setError("Por favor, completa todos los campos.");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Por favor, ingresa un email válido.");
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+
     setIsLoading(true);
-    // Simulación de autenticación
-    setTimeout(() => {
-      if (email && password) {
+    setError("");
+
+    try {
+      const response = await loginUser(formData);
+      
+      if (response.success) {
+        // Aquí podrías guardar el token/usuario en localStorage o en un estado global
+        localStorage.setItem('user', JSON.stringify(response.user));
         router.push("/admin-dashboard");
       } else {
-        setError("Please enter both email and password.");
+        setError(response.message);
       }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Error al iniciar sesión");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleGuestAccess = () => {
-    // Here you would handle guest access logic
     router.push("/guest-dashboard");
   };
 
@@ -59,7 +93,6 @@ export default function LoginPage() {
       </Link>
 
       <div className="w-full max-w-5xl grid gap-6 lg:grid-cols-2 animate-title">
-        {/* Formulario 1 */}
         <Card className="w-full bg-gradient-to-br from-indigo-100 to-purple-100">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold text-center">
@@ -78,10 +111,11 @@ export default function LoginPage() {
                   </Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
                     placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formData.email}
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -91,9 +125,10 @@ export default function LoginPage() {
                   </Label>
                   <Input
                     id="password"
+                    name="password"
                     type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={formData.password}
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -114,11 +149,11 @@ export default function LoginPage() {
                 className="w-full mt-6 bg-[#ebda16] hover:bg-[#d1c214] text-black"
                 disabled={isLoading}
               >
-                {isLoading ? "Cargando..." : "Iniciar sesión"}
+                {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
               </Button>
 
               <div className="text-sm text-center text-black font-semibold mt-2">
-                ¿Aún no tienes con una cuenta?{" "}
+                ¿Aún no tienes una cuenta?{" "}
                 <Link
                   href="/registro"
                   className="text-blue-600 hover:underline dark:text-blue-500"
@@ -129,7 +164,7 @@ export default function LoginPage() {
             </form>
           </CardContent>
         </Card>
-        {/* Formulario 2 */}
+
         <Card className="w-full flex flex-col justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
           <CardFooter className="flex flex-col space-y-4">
             <CardTitle className="text-2xl font-bold text-center">
