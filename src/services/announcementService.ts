@@ -1,73 +1,81 @@
-// src/services/announcementService.ts
-import clientPromise from '@/lib/mongodb';
+import { connectDB } from '@/lib/mongodb';
+import { Announcement } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { AnnouncementModel, CommentModel } from '@/models/Announcement';
 
 export class AnnouncementService {
-  private static async getCollection() {
-    const client = await clientPromise;
-    const collection = client.db('dashboard').collection('announcements');
-    return collection;
+  static async getAllAnnouncements() {
+    try {
+      await connectDB();
+      const announcements = await Announcement
+        .find({})
+        .sort({ createdAt: -1 });
+      return announcements;
+    } catch (error) {
+      console.error('Error al obtener anuncios:', error);
+      throw new Error('Error al obtener los anuncios');
+    }
   }
 
   static async createAnnouncement(announcement: Omit<AnnouncementModel, '_id' | 'comments' | 'createdAt' | 'updatedAt'>) {
-    const collection = await this.getCollection();
-    const now = new Date();
-    const newAnnouncement = {
-      ...announcement,
-      comments: [],
-      createdAt: now,
-      updatedAt: now,
-    };
-    
-    const result = await collection.insertOne(newAnnouncement);
-    return result;
-  }
-
-  static async getAllAnnouncements() {
-    const collection = await this.getCollection();
-    const announcements = await collection
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
-    return announcements;
+    try {
+      await connectDB();
+      const newAnnouncement = new Announcement({
+        ...announcement,
+        comments: [],
+      });
+      const result = await newAnnouncement.save();
+      return result;
+    } catch (error) {
+      console.error('Error al crear anuncio:', error);
+      throw new Error('Error al crear el anuncio');
+    }
   }
 
   static async addComment(announcementId: string, comment: Omit<CommentModel, '_id' | 'createdAt'>) {
-    const collection = await this.getCollection();
-    const newComment = {
-      ...comment,
-      _id: new ObjectId(),
-      createdAt: new Date(),
-    };
-    
-    const result = await collection.updateOne(
-      { _id: new ObjectId(announcementId) },
-      { 
-        $push: { comments: newComment },
-        $set: { updatedAt: new Date() }
-      }
-    );
-    return result;
+    try {
+      await connectDB();
+      const result = await Announcement.findByIdAndUpdate(
+        announcementId,
+        {
+          $push: { comments: { ...comment, createdAt: new Date() } },
+          $set: { updatedAt: new Date() }
+        },
+        { new: true }
+      );
+      return result;
+    } catch (error) {
+      console.error('Error al añadir comentario:', error);
+      throw new Error('Error al añadir el comentario');
+    }
   }
 
   static async deleteAnnouncement(id: string) {
-    const collection = await this.getCollection();
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
-    return result;
+    try {
+      await connectDB();
+      const result = await Announcement.findByIdAndDelete(id);
+      return result;
+    } catch (error) {
+      console.error('Error al eliminar anuncio:', error);
+      throw new Error('Error al eliminar el anuncio');
+    }
   }
 
   static async updateAnnouncement(id: string, update: Partial<AnnouncementModel>) {
-    const collection = await this.getCollection();
-    const result = await collection.updateOne(
-      { _id: new ObjectId(id) },
-      { 
-        $set: { 
+    try {
+      await connectDB();
+      const result = await Announcement.findByIdAndUpdate(
+        id,
+        { 
           ...update,
           updatedAt: new Date()
-        } 
-      }
-    );
-    return result;
+        },
+        { new: true }
+      );
+      return result;
+    } catch (error) {
+      console.error('Error al actualizar anuncio:', error);
+      throw new Error('Error al actualizar el anuncio');
+    }
   }
 }
