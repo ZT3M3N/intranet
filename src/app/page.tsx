@@ -4,7 +4,10 @@ import isopo from "@/assets/isotipo.png";
 import { Facebook, Twitter, Youtube } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
+import { redirect } from "next/navigation";
+
 export default function Component() {
+  redirect("/about");
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#ebda16] to-[#549c2c] flex flex-col items-center justify-between p-8">
       <div className="flex flex-col items-center max-w-2xl text-center">
@@ -18,7 +21,9 @@ export default function Component() {
           />
         </Link>
 
-        <h1 className="text-5xl font-bold mb-4 animate-title">¡Bienvenido a la intranet!</h1>
+        <h1 className="text-5xl font-bold mb-4 animate-title">
+          ¡Bienvenido a la intranet!
+        </h1>
         <p className="text-xl mb-8">
           Este es el espacio central para toda la información, comunicación y
           recursos de la empresa.

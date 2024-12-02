@@ -7,9 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 interface CommentFormProps {
   announcementId: number;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  isEditing?: boolean; 
+  existingComment?: string; 
 }
 
-export function CommentForm({ announcementId, onSubmit }: CommentFormProps) {
+export function CommentForm({ announcementId, onSubmit, isEditing, existingComment }: CommentFormProps) {
   return (
     <form onSubmit={onSubmit} className="w-full space-y-2">
       <div className="grid grid-cols-2 gap-2">
@@ -28,6 +30,7 @@ export function CommentForm({ announcementId, onSubmit }: CommentFormProps) {
           id={`comment-${announcementId}`}
           name="comment"
           required
+          defaultValue={isEditing ? existingComment : ""}
         />
       </div>
       <Button type="submit">Enviar comentario</Button>

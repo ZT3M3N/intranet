@@ -1,8 +1,8 @@
 // src/models/Announcement.ts
-import { ObjectId } from 'mongodb';
+import { ObjectId } from "mongodb";
 
 export interface AnnouncementModel {
-  _id?: ObjectId;
+  _id?: string;
   author: string;
   avatar: string;
   content: string;
@@ -12,7 +12,7 @@ export interface AnnouncementModel {
 }
 
 export interface CommentModel {
-  _id?: ObjectId;
+  _id?: string;
   name: string;
   area: string;
   comment: string;

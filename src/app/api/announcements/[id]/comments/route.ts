@@ -1,6 +1,6 @@
 // src/app/api/announcements/[id]/comments/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { AnnouncementService } from '@/services/announcementService';
+import { NextRequest, NextResponse } from "next/server";
+import { AnnouncementService } from "@/services/announcementService";
 
 export async function POST(
   req: NextRequest,
@@ -11,6 +11,10 @@ export async function POST(
     const result = await AnnouncementService.addComment(params.id, body);
     return NextResponse.json(result);
   } catch (error) {
-    return NextResponse.json({ error: 'Error adding comment' }, { status: 500 });
+    console.error("Error adding comment:", error);
+    return NextResponse.json(
+      { error: "Error al agregar el comentario" },
+      { status: 500 }
+    );
   }
 }
