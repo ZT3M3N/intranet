@@ -1,5 +1,5 @@
 // src/data/menuItems.ts
-import { FileText, MessageSquare, Home } from "lucide-react";
+import { FileText, MessageSquare, Home, LogIn } from "lucide-react";
 import { MenuItem } from "@/types";
 
 export const menuItems: MenuItem[] = [
@@ -15,10 +15,10 @@ export const menuItems: MenuItem[] = [
     icon: MessageSquare,
     section: "announcements",
   },
-  { 
-    title: "Volver al inicio", 
-    href: "/", 
-    icon: Home, 
-    section: "home" 
+  {
+    title: "Ingresar como administrador",
+    href: "/login",
+    icon: LogIn,
+    section: "login",
   },
 ];

@@ -32,7 +32,7 @@ export default function LoginPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (error) setError("");
   };
 
@@ -53,7 +53,7 @@ export default function LoginPage() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -61,16 +61,18 @@ export default function LoginPage() {
 
     try {
       const response = await loginUser(formData);
-      
+
       if (response.success) {
         // Aquí podrías guardar el token/usuario en localStorage o en un estado global
-        localStorage.setItem('user', JSON.stringify(response.user));
+        localStorage.setItem("user", JSON.stringify(response.user));
         router.push("/admin-dashboard");
       } else {
         setError(response.message);
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Error al iniciar sesión");
+      setError(
+        error instanceof Error ? error.message : "Error al iniciar sesión"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +94,7 @@ export default function LoginPage() {
         />
       </Link>
 
-      <div className="w-full max-w-5xl grid gap-6 lg:grid-cols-2 animate-title">
+      <div className="w-full max-w-xl grid gap-6 animate-title">
         <Card className="w-full bg-gradient-to-br from-indigo-100 to-purple-100">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold text-center">
@@ -151,21 +153,11 @@ export default function LoginPage() {
               >
                 {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
               </Button>
-
-              <div className="text-sm text-center text-black font-semibold mt-2">
-                ¿Aún no tienes una cuenta?{" "}
-                <Link
-                  href="/registro"
-                  className="text-blue-600 hover:underline dark:text-blue-500"
-                >
-                  Regístrate
-                </Link>
-              </div>
             </form>
           </CardContent>
         </Card>
 
-        <Card className="w-full flex flex-col justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
+        {/* <Card className="w-full flex flex-col justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
           <CardFooter className="flex flex-col space-y-4">
             <CardTitle className="text-2xl font-bold text-center">
               O accede como invitado
@@ -182,7 +174,7 @@ export default function LoginPage() {
               Inicia como invitado
             </Button>
           </CardFooter>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

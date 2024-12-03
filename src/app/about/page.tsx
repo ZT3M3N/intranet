@@ -1,5 +1,17 @@
-import { Building2, Users, Target, Compass, BookOpen } from "lucide-react";
+import {
+  Building2,
+  Users,
+  Target,
+  Compass,
+  BookOpen,
+  Facebook,
+  Twitter,
+  Youtube,
+} from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
+import Image from "next/image";
 import Link from "next/link";
+import isopo from "@/assets/isotipo.png";
 
 function App() {
   return (
@@ -19,6 +31,66 @@ function App() {
       </header>
 
       <main>
+        {/* Welcome Section */}
+        <div className="flex flex-col items-center  text-center py-10 mx-auto bg-[#549c2c]">
+          <Link href="/" className="mb-8 transition-transform hover:scale-105">
+            <Image
+              src={isopo} // Asegúrate de que la ruta sea correcta
+              alt="Mascota de la intranet"
+              width={100}
+              height={100}
+              className="w-auto h-auto"
+            />
+          </Link>
+
+          <h1 className="text-5xl font-bold mb-4 animate-title">
+            ¡Bienvenido a la intranet!
+          </h1>
+          <p className="text-xl mb-8">
+            Este es el espacio central para toda la información, comunicación y
+            recursos de la empresa.
+          </p>
+
+          <div className="flex gap-4 mb-8">
+            <Link href="/guest-dashboard">
+              <button className="bg-[#ffef41] text-black px-6 py-2 rounded-md hover:bg-[#e8de71]">
+                Iniciar
+              </button>
+            </Link>
+          </div>
+
+          <div className="flex gap-6">
+            <Link
+              href="#"
+              className="text-black hover:text-[#1877f2] transition-colors"
+            >
+              <Facebook size={24} />
+              <span className="sr-only">Facebook</span>
+            </Link>
+            <Link
+              href="#"
+              className="text-black hover:text-[#1da1f2] transition-colors"
+            >
+              <Twitter size={24} />
+              <span className="sr-only">Twitter</span>
+            </Link>
+            <Link
+              href="#"
+              className="text-black hover:text-[#ff0000] transition-colors"
+            >
+              <Youtube size={24} />
+              <span className="sr-only">YouTube</span>
+            </Link>
+            <Link
+              href="#"
+              className="text-black hover:text-[#25d366] transition-colors"
+            >
+              <FaWhatsapp size={24} />
+              <span className="sr-only">WhatsApp</span>
+            </Link>
+          </div>
+        </div>
+
         {/* Hero Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="text-center">
@@ -45,10 +117,11 @@ function App() {
                   <h2 className="text-2xl font-bold">Nuestra Misión</h2>
                 </div>
                 <p className="text-black leading-relaxed">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque
-                  sed impedit nostrum? At iure provident quo non unde alias,
-                  nobis ut nostrum cumque autem voluptatum culpa sequi, dolore
-                  aut ea!
+                  Somos la mejor alternativa en la industria farmacéutica
+                  dedicada a mantener la satisfacción de nuestros clientes
+                  innovando y dispensando productos de alta calidad con precios
+                  accesibles, y un excelente servicio en cada una de nuestras
+                  sucursales.
                 </p>
               </div>
               <div className="space-y-6">
@@ -57,10 +130,10 @@ function App() {
                   <h2 className="text-2xl font-bold">Nuestra Visión</h2>
                 </div>
                 <p className="text-black leading-relaxed">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi
-                  labore cumque tempora dignissimos explicabo quasi debitis, sed
-                  ratione recusandae ex nisi ullam temporibus error rerum
-                  consequatur repudiandae consequuntur alias? Sint.
+                  En Farmacias Yireh tenemos la visión de formar el mejor equipo
+                  humano, trabajando con profesionalismo, honestidad y
+                  compromiso para llegar a ser la mejor cadena farmacéutica a
+                  nivel nacional.
                 </p>
               </div>
             </div>
