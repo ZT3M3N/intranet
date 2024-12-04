@@ -12,18 +12,6 @@ async function getGridFS() {
   });
 }
 
-export async function GET() {
-  try {
-    const documents = await Document.find().sort({ uploadDate: -1 });
-    return NextResponse.json(documents);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Error fetching documents" },
-      { status: 500 }
-    );
-  }
-}
-
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -69,6 +57,7 @@ export async function POST(req: NextRequest) {
       fileSize: file.size,
       uploadedBy,
       contentType: file.type,
+      fileUrl: `/api/documents/${uploadStream.id}/download`, // Agregamos la URL del archivo
     });
 
     return NextResponse.json(document);
@@ -76,6 +65,18 @@ export async function POST(req: NextRequest) {
     console.error("Error uploading document:", error);
     return NextResponse.json(
       { error: "Error creating document" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const documents = await Document.find().sort({ uploadDate: -1 });
+    return NextResponse.json(documents);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Error fetching documents" },
       { status: 500 }
     );
   }
