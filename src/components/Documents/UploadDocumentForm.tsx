@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+
+interface Category {
+  _id: string;
+  name: string;
+  createdAt: string;
+  __v: number;
+}
 
 interface UploadDocumentFormProps {
   onUploadSuccess: () => void;
   onCancel: () => void;
-  categories: string[];
+  categories: Category[];
 }
 
 export function UploadDocumentForm({
@@ -16,21 +21,30 @@ export function UploadDocumentForm({
   onCancel,
   categories,
 }: UploadDocumentFormProps) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [category, setCategory] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFile) return;
+    if (!file || !title || !category) {
+      toast({
+        title: "Error",
+        description: "Por favor complete todos los campos requeridos",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsUploading(true);
-    const formData = new FormData(e.currentTarget);
-    formData.append("file", selectedFile);
-
-    // Obtener el usuario del localStorage
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    formData.append("uploadedBy", user.email || "anonymous");
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("category", category);
 
     try {
       const response = await fetch("/api/documents", {
@@ -38,7 +52,9 @@ export function UploadDocumentForm({
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Error al subir el documento");
+      if (!response.ok) {
+        throw new Error("Error al subir el documento");
+      }
 
       toast({
         title: "Éxito",
@@ -46,6 +62,7 @@ export function UploadDocumentForm({
       });
       onUploadSuccess();
     } catch (error) {
+      console.error("Error:", error);
       toast({
         title: "Error",
         description: "No se pudo subir el documento",
@@ -57,51 +74,74 @@ export function UploadDocumentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="title">Título</Label>
-        <Input id="title" name="title" required />
-      </div>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <h2 className="text-xl font-bold mb-4">Subir Documento</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Título *</label>
+            <Input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
 
-      <div>
-        <Label htmlFor="description">Descripción</Label>
-        <Textarea id="description" name="description" />
-      </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Descripción
+            </label>
+            <Input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
 
-      <div>
-        <Label htmlFor="category">Categoría</Label>
-        <select
-          id="category"
-          name="category"
-          className="w-full border rounded-md p-2"
-          required
-        >
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-      </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Categoría *
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full border rounded-md p-2"
+              required
+            >
+              <option value="">Seleccione una categoría</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div>
-        <Label htmlFor="file">Archivo</Label>
-        <Input
-          id="file"
-          type="file"
-          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-          required
-        />
-      </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Archivo *</label>
+            <Input
+              type="file"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              required
+            />
+          </div>
 
-      <div className="flex gap-2">
-        <Button type="submit" disabled={isUploading}>
-          {isUploading ? "Subiendo..." : "Subir documento"}
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
+          <div className="flex justify-end space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isUploading}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={isUploading}>
+              {isUploading ? "Subiendo..." : "Subir"}
+            </Button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 }
