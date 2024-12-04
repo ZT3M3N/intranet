@@ -81,14 +81,21 @@ export function DocumentList() {
         method: "DELETE",
       });
 
-      if (!response.ok) throw new Error("Error al eliminar el documento");
+      if (!response.ok) {
+        throw new Error("Error al eliminar el documento");
+      }
+
+      const data = await response.json();
 
       toast({
         title: "Éxito",
-        description: "Documento eliminado correctamente",
+        description: data.message || "Documento eliminado correctamente",
       });
-      fetchDocuments();
+
+      // Actualizar la lista de documentos
+      setDocuments(documents.filter((doc) => doc._id !== id));
     } catch (error) {
+      console.error("Error:", error);
       toast({
         title: "Error",
         description: "No se pudo eliminar el documento",
