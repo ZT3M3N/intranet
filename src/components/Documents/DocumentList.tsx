@@ -6,18 +6,19 @@ import { FileIcon, Trash2 } from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
+import { CategoryManager } from "./CategoryManager";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+
+interface Category {
+  _id: string;
+  name: string;
+}
 
 export function DocumentList() {
   const [documents, setDocuments] = useState([]);
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const [categories, setCategories] = useState([
-    "General",
-    "RH",
-    "Finanzas",
-    "Operaciones",
-  ]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -72,6 +73,27 @@ export function DocumentList() {
     fetchDocuments();
   }, []);
 
+  // Cargar categorías al montar el componente
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        if (!response.ok) throw new Error("Error al cargar categorías");
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar las categorías",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const handleDeleteDocument = async (id: string) => {
     if (!confirm("¿Estás seguro de que deseas eliminar este documento?"))
       return;
@@ -116,6 +138,11 @@ export function DocumentList() {
         <Button onClick={() => setShowUploadForm(true)}>Subir documento</Button>
       </div>
 
+      <CategoryManager
+        categories={categories}
+        onCategoriesChange={setCategories}
+      />
+
       <div className="flex gap-2 mb-4">
         <select
           value={selectedCategory}
@@ -124,24 +151,22 @@ export function DocumentList() {
         >
           <option value="all">Todas las categorías</option>
           {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
+            <option key={category._id} value={category.name}>
+              {category.name}
             </option>
           ))}
         </select>
       </div>
 
       {showUploadForm && (
-        <div className="bg-white p-4 rounded-lg shadow">
-          <UploadDocumentForm
-            onUploadSuccess={() => {
-              setShowUploadForm(false);
-              fetchDocuments();
-            }}
-            onCancel={() => setShowUploadForm(false)}
-            categories={categories}
-          />
-        </div>
+        <UploadDocumentForm
+          onUploadSuccess={() => {
+            setShowUploadForm(false);
+            // Recargar documentos
+          }}
+          onCancel={() => setShowUploadForm(false)}
+          categories={categories}
+        />
       )}
 
       <div className="grid gap-4">
