@@ -66,14 +66,26 @@ export default function AdminDashboardPage() {
   };
 
   const handleCreateAnnouncement = async (formData: FormData) => {
+    console.log("Creating announcement...");
+    console.log("FormData contents before sending:");
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(key, "File:", value.name, value.type, value.size);
+      } else {
+        console.log(key, value);
+      }
+    }
+
     try {
-      await addAnnouncement(formData);
+      const result = await addAnnouncement(formData);
+      console.log("Announcement created:", result);
       setShowAnnouncementForm(false);
       toast({
         title: "Éxito",
         description: "Anuncio creado correctamente",
       });
     } catch (error) {
+      console.error("Error creating announcement:", error);
       toast({
         title: "Error",
         description:

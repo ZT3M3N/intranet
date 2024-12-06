@@ -7,37 +7,34 @@ export class AnnouncementService {
   static async getAllAnnouncements() {
     try {
       await connectDB();
-      const announcements = await Announcement.find({}).sort({ createdAt: -1 });
-      return announcements;
+      return await Announcement.find().sort({ createdAt: -1 });
     } catch (error) {
-      console.error("Error al obtener anuncios:", error);
-      throw new Error("Error al obtener los anuncios");
+      console.error("Error in getAllAnnouncements:", error);
+      throw error;
     }
   }
 
-  static async createAnnouncement(
-    announcement: Omit<
-      AnnouncementModel,
-      "_id" | "comments" | "createdAt" | "updatedAt"
-    > & {
-      media?: Array<{
-        type: string;
-        url: string;
-        filename: string;
-      }>;
-    }
-  ) {
+  static async createAnnouncement(data: {
+    author: string;
+    content: string;
+    media?: Array<{ type: string; url: string; filename: string }>;
+    avatar?: string;
+  }) {
     try {
       await connectDB();
-      const newAnnouncement = new Announcement({
-        ...announcement,
-        comments: [],
+      console.log("Creating announcement with data:", data);
+
+      const announcement = await Announcement.create({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
-      const result = await newAnnouncement.save();
-      return result;
+
+      console.log("Created announcement:", announcement);
+      return announcement;
     } catch (error) {
-      console.error("Error al crear anuncio:", error);
-      throw new Error("Error al crear el anuncio");
+      console.error("Error in createAnnouncement:", error);
+      throw error;
     }
   }
 

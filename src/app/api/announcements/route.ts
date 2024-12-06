@@ -1,64 +1,68 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AnnouncementService } from "@/services/announcementService";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
-import { mkdir } from "fs/promises";
 
 export async function POST(req: NextRequest) {
+  console.log("API: Starting to process request");
+
   try {
     const formData = await req.formData();
+    console.log("API: FormData received");
 
-    // Extraer datos básicos
     const author = formData.get("author") as string;
     const content = formData.get("content") as string;
     const mediaFiles = formData.getAll("media");
 
-    if (!author || !content) {
-      return NextResponse.json(
-        { error: "Autor y contenido son requeridos" },
-        { status: 400 }
-      );
-    }
+    console.log("API: Received fields:", { author, content });
+    console.log("API: Number of media files:", mediaFiles.length);
 
     const media = [];
+    if (mediaFiles.length > 0) {
+      const uploadDir = path.join(process.cwd(), "public/uploads");
+      await mkdir(uploadDir, { recursive: true });
 
-    // Asegurar que existe el directorio de uploads
-    const uploadDir = path.join(process.cwd(), "public/uploads");
-    await mkdir(uploadDir, { recursive: true });
+      for (const file of mediaFiles) {
+        if (file instanceof File) {
+          console.log("API: Processing file:", file.name, file.type);
 
-    // Procesar archivos
-    for (const file of mediaFiles) {
-      if (file instanceof File) {
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
+          const bytes = await file.arrayBuffer();
+          const buffer = Buffer.from(bytes);
+          const filename = `${Date.now()}-${file.name}`;
+          const filepath = path.join(uploadDir, filename);
 
-        const filename = `${Date.now()}-${file.name.replace(
-          /[^a-zA-Z0-9.-]/g,
-          ""
-        )}`;
-        const filepath = path.join(uploadDir, filename);
+          await writeFile(filepath, buffer);
+          console.log("API: File saved to:", filepath);
 
-        await writeFile(filepath, buffer);
+          media.push({
+            type: file.type,
+            url: `/uploads/${filename}`,
+            filename: filename,
+          });
 
-        media.push({
-          type: file.type,
-          url: `/uploads/${filename}`,
-          filename: filename,
-        });
+          console.log("API: Media entry created:", media[media.length - 1]);
+        }
       }
     }
 
-    // Crear el anuncio
-    const announcement = await AnnouncementService.createAnnouncement({
+    const announcementData = {
       author,
       content,
-      media,
-      avatar: "/images/placeholder.svg", // Asegúrate de que este archivo exista en public/images/
-    });
+      media: media.length > 0 ? media : undefined,
+      avatar:
+        "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+    };
+
+    console.log("API: Creating announcement with data:", announcementData);
+
+    const announcement = await AnnouncementService.createAnnouncement(
+      announcementData
+    );
+    console.log("API: Announcement created:", announcement);
 
     return NextResponse.json(announcement);
   } catch (error) {
-    console.error("Error creating announcement:", error);
+    console.error("API: Error:", error);
     return NextResponse.json(
       { error: "Error al crear el anuncio" },
       { status: 500 }

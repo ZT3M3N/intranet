@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AnnouncementModel } from "@/models/Announcement";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Loader2, Send } from "lucide-react";
 
 interface AnnouncementFormProps {
   announcement?: Partial<AnnouncementModel>;
@@ -21,45 +21,92 @@ export function AnnouncementForm({
 }: AnnouncementFormProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setSelectedFiles((prev) => [...prev, ...files]);
+    if (!e.target.files?.length) {
+      console.log("No files selected");
+      return;
+    }
 
-    // Crear previsualizaciones
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviews((prev) => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    console.log(
+      "Files selected:",
+      files.map((f) => ({
+        name: f.name,
+        type: f.type,
+        size: f.size,
+      }))
+    );
+
+    setSelectedFiles(files);
+
+    // Crear previews
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setPreviews((prev) => {
+      prev.forEach((url) => URL.revokeObjectURL(url));
+      return newPreviews;
     });
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    setPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-
-    selectedFiles.forEach((file) => {
-      formData.append("media", file);
-    });
+    setError(null);
 
     try {
+      const formData = new FormData();
+
+      // Agregar campos básicos
+      const authorInput =
+        e.currentTarget.querySelector<HTMLInputElement>('[name="author"]');
+      const contentInput =
+        e.currentTarget.querySelector<HTMLTextAreaElement>('[name="content"]');
+
+      if (authorInput?.value) formData.append("author", authorInput.value);
+      if (contentInput?.value) formData.append("content", contentInput.value);
+
+      // Agregar archivos
+      console.log("Selected files before submit:", selectedFiles);
+      selectedFiles.forEach((file, index) => {
+        console.log(`Adding file ${index} to FormData:`, {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+        });
+        formData.append("media", file);
+      });
+
+      // Log del contenido final del FormData
+      console.log("FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(key, "File:", {
+            name: value.name,
+            type: value.type,
+            size: value.size,
+          });
+        } else {
+          console.log(key, value);
+        }
+      }
+
       await onSubmit(formData);
-      onCancel();
+
+      // Limpiar el formulario
+      setSelectedFiles([]);
+      setPreviews([]);
+      e.currentTarget.reset();
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error in form submission:", error);
+      setError(
+        error instanceof Error ? error.message : "Error al crear el anuncio"
+      );
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white p-4 rounded-lg">
-      <div>
+      <div className="space-y-2">
         <Label htmlFor="author">Autor</Label>
         <Input
           id="author"
@@ -68,7 +115,8 @@ export function AnnouncementForm({
           required
         />
       </div>
-      <div>
+
+      <div className="space-y-2">
         <Label htmlFor="content">Contenido</Label>
         <Textarea
           id="content"
@@ -77,85 +125,73 @@ export function AnnouncementForm({
           required
         />
       </div>
-      <div>
-        <Label htmlFor="media">Archivos multimedia</Label>
-        <div className="mt-2 flex items-center gap-4">
-          <Input
-            id="media"
-            type="file"
-            onChange={handleFileChange}
-            accept="image/*,video/*"
-            multiple
-            className="hidden"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => document.getElementById("media")?.click()}
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Subir archivos
-          </Button>
-        </div>
 
-        {/* Previsualizaciones */}
-        <div className="mt-4 grid grid-cols-3 gap-4">
+      <div className="space-y-2">
+        <Label htmlFor="media">Archivos multimedia</Label>
+        <Input
+          id="media"
+          name="media"
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          onChange={handleFileChange}
+          className="cursor-pointer"
+        />
+      </div>
+
+      {/* Mostrar previews */}
+      {previews.length > 0 && (
+        <div className="grid grid-cols-2 gap-2">
           {previews.map((preview, index) => (
             <div key={index} className="relative">
-              {selectedFiles[index].type.startsWith("image/") ? (
-                <img
-                  src={preview}
-                  alt={`Preview ${index}`}
-                  className="w-full h-32 object-cover rounded-md"
-                />
-              ) : (
-                <video
-                  src={preview}
-                  className="w-full h-32 object-cover rounded-md"
-                  controls
-                />
-              )}
-              <Button
+              <img
+                src={preview}
+                alt={`Preview ${index + 1}`}
+                className="w-full h-32 object-cover rounded"
+              />
+              <button
                 type="button"
-                variant="destructive"
-                size="icon"
-                className="absolute top-1 right-1"
-                onClick={() => removeFile(index)}
+                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
+                onClick={() => {
+                  setSelectedFiles((prev) =>
+                    prev.filter((_, i) => i !== index)
+                  );
+                  setPreviews((prev) => prev.filter((_, i) => i !== index));
+                }}
               >
                 <X className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
           ))}
         </div>
-      </div>
+      )}
 
-      <div className="flex gap-2">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
+      <div className="flex justify-end space-x-2">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+        )}
         <Button type="submit" disabled={isLoading}>
           {isLoading ? (
             <>
-              <span className="loading loading-spinner"></span>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Enviando...
             </>
           ) : (
-            "Crear Anuncio"
+            <>
+              <Send className="mr-2 h-4 w-4" />
+              {announcement ? "Actualizar" : "Publicar"}
+            </>
           )}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={isLoading}
-        >
-          Cancelar
-        </Button>
       </div>
-
-      {/* Indicador de estado de conexión */}
-      {!navigator.onLine && (
-        <div className="text-red-500 text-sm mt-2">
-          No hay conexión a internet. Verifica tu conexión.
-        </div>
-      )}
     </form>
   );
 }

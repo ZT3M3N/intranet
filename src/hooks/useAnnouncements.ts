@@ -1,11 +1,13 @@
 // src/hooks/useAnnouncements.ts
 import { useState, useEffect } from "react";
 import { AnnouncementModel } from "@/models/Announcement";
+import { useToast } from "@/hooks/use-toast";
 
 export function useAnnouncements() {
   const [announcements, setAnnouncements] = useState<AnnouncementModel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchAnnouncements = async () => {
     setIsLoading(true);
@@ -28,26 +30,29 @@ export function useAnnouncements() {
   }, []);
 
   const addAnnouncement = async (formData: FormData) => {
-    setIsLoading(true);
+    console.log("useAnnouncements: Starting request");
+
     try {
       const response = await fetch("/api/announcements", {
         method: "POST",
         body: formData,
       });
 
+      console.log("useAnnouncements: Response status:", response.status);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Error al crear el anuncio");
+        const errorData = await response.json();
+        console.error("useAnnouncements: Error response:", errorData);
+        throw new Error(errorData.error || "Error al crear el anuncio");
       }
 
-      const newAnnouncement = await response.json();
-      setAnnouncements((prev) => [newAnnouncement, ...prev]);
-      return newAnnouncement;
+      const data = await response.json();
+      console.log("useAnnouncements: Success response:", data);
+
+      return data;
     } catch (error) {
-      console.error("Error creating announcement:", error);
+      console.error("useAnnouncements: Error:", error);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 

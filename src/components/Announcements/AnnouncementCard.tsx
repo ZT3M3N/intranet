@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Announcement, Comment } from "@/types";
 import { CommentForm } from "@/components/Documents/CommentForm";
 import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 
 interface AnnouncementCardProps {
   announcement: Announcement;
@@ -45,6 +46,18 @@ export function AnnouncementCard({
 }: AnnouncementCardProps) {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editedCommentText, setEditedCommentText] = useState("");
+
+  console.log("Announcement data:", announcement);
+  console.log("Media data:", announcement.media);
+
+  console.log("Raw announcement:", JSON.stringify(announcement, null, 2));
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const mediaFiles = formData.getAll("media");
+    console.log("Files in form:", mediaFiles);
+  };
 
   const handleEditComment = (commentId: string, currentComment: string) => {
     setEditingCommentId(commentId);
@@ -102,39 +115,56 @@ export function AnnouncementCard({
         </div>
       </CardHeader>
       <CardContent>
-        {/* Contenido del anuncio */}
         <p className="text-white mb-4">{announcement.content}</p>
 
-        {/* Archivos multimedia */}
-        {announcement.media && announcement.media.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {announcement.media.map((media, index) => (
-              <div key={index} className="relative rounded-lg overflow-hidden">
-                {media.type.startsWith("image/") ? (
-                  <img
-                    src={media.url}
-                    alt={`Media ${index + 1}`}
-                    className="w-full h-48 object-cover rounded-lg"
-                    loading="lazy"
-                  />
-                ) : media.type.startsWith("video/") ? (
-                  <video
-                    src={media.url}
-                    controls
-                    className="w-full h-48 object-cover rounded-lg"
-                  >
-                    Tu navegador no soporta la reproducción de videos.
-                  </video>
-                ) : (
-                  <div className="w-full h-48 flex items-center justify-center bg-gray-100 rounded-lg">
-                    <p className="text-gray-500">
-                      Archivo no soportado: {media.filename}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
+        {announcement.media && announcement.media.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            {announcement.media.map((media, index) => {
+              console.log("Processing media item:", media);
+              return (
+                <div
+                  key={index}
+                  className="relative rounded-lg overflow-hidden bg-white/10"
+                >
+                  {media.type.startsWith("image/") ? (
+                    <>
+                      <img
+                        src={media.url}
+                        alt={`Media ${index + 1}`}
+                        className="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
+                        onClick={() => window.open(media.url, "_blank")}
+                        onError={(e) => {
+                          console.error("Error loading image:", media.url);
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </>
+                  ) : media.type.startsWith("video/") ? (
+                    <video
+                      src={media.url}
+                      controls
+                      className="w-full h-48 object-cover rounded-lg"
+                    >
+                      Tu navegador no soporta la reproducción de videos.
+                    </video>
+                  ) : (
+                    <div className="w-full h-48 flex items-center justify-center bg-gray-100 rounded-lg">
+                      <a
+                        href={media.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        Descargar: {media.filename}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
+        ) : (
+          <p className="text-white/60 text-sm">No hay archivos multimedia</p>
         )}
       </CardContent>
       <CardFooter className="flex flex-col items-start">

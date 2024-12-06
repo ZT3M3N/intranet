@@ -6,11 +6,19 @@ if (!MONGODB_URI) {
   throw new Error("Por favor define la variable de entorno MONGODB_URI");
 }
 
+// Esquema para media
+const mediaSchema = new mongoose.Schema({
+  type: String,
+  url: String,
+  filename: String,
+});
+
 // Esquema para anuncios
 const announcementSchema = new mongoose.Schema({
   author: String,
   avatar: String,
   content: String,
+  media: [mediaSchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   comments: [
