@@ -8,9 +8,13 @@ interface SidebarProps {
   onMenuClick: (section: string) => void;
 }
 
-export function Sidebar({ menuItems, activeSection, onMenuClick }: SidebarProps) {
+export function Sidebar({
+  menuItems,
+  activeSection,
+  onMenuClick,
+}: SidebarProps) {
   return (
-    <aside className="hidden w-64 min-h-screen p-4 bg-white shadow-md md:block">
+    <aside className="hidden w-64 min-h-screen p-4 bg-[#3e538d] shadow-md md:block">
       <nav className="flex flex-col gap-4">
         {menuItems.map((item) => (
           <Link

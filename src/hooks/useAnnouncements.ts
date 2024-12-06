@@ -1,46 +1,53 @@
 // src/hooks/useAnnouncements.ts
 import { useState, useEffect } from "react";
 import { AnnouncementModel } from "@/models/Announcement";
-import { AnnouncementService } from "@/services/announcementService";
 
 export function useAnnouncements() {
   const [announcements, setAnnouncements] = useState<AnnouncementModel[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchAnnouncements = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/announcements");
+      if (!response.ok) {
+        throw new Error("Error al cargar los anuncios");
+      }
+      const data = await response.json();
+      setAnnouncements(data);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Error desconocido");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchAnnouncements();
   }, []);
 
-  const fetchAnnouncements = async () => {
-    try {
-      const response = await fetch("/api/announcements");
-      if (!response.ok) throw new Error("Error fetching announcements");
-      const data = await response.json();
-      setAnnouncements(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addAnnouncement = async (
-    announcement: Omit<
-      AnnouncementModel,
-      "_id" | "comments" | "createdAt" | "updatedAt"
-    >
-  ) => {
+  const addAnnouncement = async (formData: FormData) => {
+    setIsLoading(true);
     try {
       const response = await fetch("/api/announcements", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(announcement),
+        body: formData,
       });
-      if (!response.ok) throw new Error("Error creating announcement");
-      await fetchAnnouncements();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al crear el anuncio");
+      }
+
+      const newAnnouncement = await response.json();
+      setAnnouncements((prev) => [newAnnouncement, ...prev]);
+      return newAnnouncement;
+    } catch (error) {
+      console.error("Error creating announcement:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,41 +71,53 @@ export function useAnnouncements() {
     }
   };
 
-  const updateAnnouncement = async (
-    id: string,
-    update: Partial<AnnouncementModel>
-  ) => {
-    try {
-      const response = await fetch(`/api/announcements/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(update),
-      });
-      if (!response.ok) throw new Error("Error updating announcement");
-      await fetchAnnouncements();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-      throw err;
-    }
-  };
-
   const deleteAnnouncement = async (id: string) => {
     try {
       const response = await fetch(`/api/announcements/${id}`, {
         method: "DELETE",
       });
-      if (!response.ok) throw new Error("Error deleting announcement");
-      await fetchAnnouncements();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-      throw err;
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar el anuncio");
+      }
+
+      setAnnouncements((prev) =>
+        prev.filter((announcement) => announcement._id !== id)
+      );
+    } catch (error) {
+      console.error("Error deleting announcement:", error);
+      throw error;
+    }
+  };
+
+  const updateAnnouncement = async (id: string, formData: FormData) => {
+    try {
+      const response = await fetch(`/api/announcements/${id}`, {
+        method: "PUT",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al actualizar el anuncio");
+      }
+
+      const updatedAnnouncement = await response.json();
+      setAnnouncements((prev) =>
+        prev.map((announcement) =>
+          announcement._id === id ? updatedAnnouncement : announcement
+        )
+      );
+      return updatedAnnouncement;
+    } catch (error) {
+      console.error("Error updating announcement:", error);
+      throw error;
     }
   };
 
   const updateComment = async (
     announcementId: string,
     commentId: string,
-    newComment: string
+    comment: string
   ) => {
     try {
       const response = await fetch(
@@ -108,7 +127,7 @@ export function useAnnouncements() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ comment: newComment }),
+          body: JSON.stringify({ comment }),
         }
       );
 
@@ -117,15 +136,15 @@ export function useAnnouncements() {
       }
 
       const updatedAnnouncement = await response.json();
-      setAnnouncements((prevAnnouncements) =>
-        prevAnnouncements.map((announcement) =>
+      setAnnouncements((prev) =>
+        prev.map((announcement) =>
           announcement._id === announcementId
             ? updatedAnnouncement
             : announcement
         )
       );
     } catch (error) {
-      console.error("Error en updateComment:", error);
+      console.error("Error updating comment:", error);
       throw error;
     }
   };
@@ -144,28 +163,30 @@ export function useAnnouncements() {
       }
 
       const updatedAnnouncement = await response.json();
-      setAnnouncements((prevAnnouncements) =>
-        prevAnnouncements.map((announcement) =>
+      setAnnouncements((prev) =>
+        prev.map((announcement) =>
           announcement._id === announcementId
             ? updatedAnnouncement
             : announcement
         )
       );
     } catch (error) {
-      console.error("Error en deleteComment:", error);
+      console.error("Error deleting comment:", error);
       throw error;
     }
   };
 
   return {
     announcements,
-    loading,
+    isLoading,
     error,
+    setAnnouncements,
     addAnnouncement,
     updateAnnouncement,
     deleteAnnouncement,
     addComment,
     updateComment,
     deleteComment,
+    refetchAnnouncements: fetchAnnouncements,
   };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { menuItems } from "@/data/menuItemsAdmin";
 import { documents } from "@/data/documents";
@@ -20,13 +20,12 @@ export default function AdminDashboardPage() {
   const [editingAnnouncement, setEditingAnnouncement] =
     useState<AnnouncementModel | null>(null);
   const [showAnnouncementForm, setShowAnnouncementForm] = useState(false);
+  const { addAnnouncement, isLoading } = useAnnouncements();
   const { toast } = useToast();
 
   const {
     announcements,
-    loading,
     error,
-    addAnnouncement,
     updateAnnouncement,
     deleteAnnouncement,
     addComment,
@@ -66,46 +65,31 @@ export default function AdminDashboardPage() {
     toggleCommentForm(announcementId);
   };
 
-  const handleCreateAnnouncement = async (data: Partial<AnnouncementModel>) => {
+  const handleCreateAnnouncement = async (formData: FormData) => {
     try {
-      await addAnnouncement(data);
+      await addAnnouncement(formData);
       setShowAnnouncementForm(false);
       toast({
         title: "Éxito",
         description: "Anuncio creado correctamente",
       });
     } catch (error) {
-      console.log(error);
       toast({
         title: "Error",
-        description: "No se pudo crear el anuncio",
+        description:
+          error instanceof Error ? error.message : "Error al crear el anuncio",
         variant: "destructive",
       });
     }
   };
 
-  const handleUpdateAnnouncement = async (data: Partial<AnnouncementModel>) => {
-    if (!editingAnnouncement?._id) return;
-
-    try {
-      await updateAnnouncement(editingAnnouncement._id.toString(), data);
-      setEditingAnnouncement(null);
-      toast({
-        title: "Éxito",
-        description: "Anuncio actualizado correctamente",
-      });
-    } catch (error) {
-      console.log(error);
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar el anuncio",
-        variant: "destructive",
-      });
-    }
+  const handleEditAnnouncement = async (announcement: AnnouncementModel) => {
+    setEditingAnnouncement(announcement);
+    setShowAnnouncementForm(true);
   };
 
   const handleDeleteAnnouncement = async (id: string) => {
-    if (confirm("¿Estás seguro de que deseas eliminar este anuncio?")) {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este anuncio?")) {
       try {
         await deleteAnnouncement(id);
         toast({
@@ -113,10 +97,9 @@ export default function AdminDashboardPage() {
           description: "Anuncio eliminado correctamente",
         });
       } catch (error) {
-        console.log(error);
         toast({
           title: "Error",
-          description: "No se pudo eliminar el anuncio",
+          description: "Error al eliminar el anuncio",
           variant: "destructive",
         });
       }
@@ -135,10 +118,9 @@ export default function AdminDashboardPage() {
         description: "Comentario actualizado correctamente",
       });
     } catch (error) {
-      console.log(error);
       toast({
         title: "Error",
-        description: "No se pudo actualizar el comentario",
+        description: "Error al actualizar el comentario",
         variant: "destructive",
       });
     }
@@ -148,7 +130,9 @@ export default function AdminDashboardPage() {
     announcementId: string,
     commentId: string
   ) => {
-    if (confirm("¿Estás seguro de que deseas eliminar este comentario?")) {
+    if (
+      window.confirm("¿Estás seguro de que deseas eliminar este comentario?")
+    ) {
       try {
         await deleteComment(announcementId, commentId);
         toast({
@@ -156,18 +140,93 @@ export default function AdminDashboardPage() {
           description: "Comentario eliminado correctamente",
         });
       } catch (error) {
-        console.log(error);
         toast({
           title: "Error",
-          description: "No se pudo eliminar el comentario",
+          description: "Error al eliminar el comentario",
           variant: "destructive",
         });
       }
     }
   };
 
+  useEffect(() => {
+    const handleOnline = () => {
+      toast({
+        title: "Conexión restaurada",
+        description: "Ya puedes crear anuncios nuevamente",
+      });
+    };
+
+    const handleOffline = () => {
+      toast({
+        title: "Sin conexión",
+        description: "No hay conexión a internet",
+        variant: "destructive",
+      });
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [toast]);
+
   const renderContent = () => {
     switch (activeSection) {
+      case "announcements":
+        return (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Comunicados</h2>
+              <Button
+                onClick={() => {
+                  setEditingAnnouncement(null);
+                  setShowAnnouncementForm(true);
+                }}
+              >
+                Nuevo Comunicado
+              </Button>
+            </div>
+
+            {showAnnouncementForm && (
+              <AnnouncementForm
+                announcement={editingAnnouncement || undefined}
+                onSubmit={handleCreateAnnouncement}
+                onCancel={() => {
+                  setShowAnnouncementForm(false);
+                  setEditingAnnouncement(null);
+                }}
+                isLoading={isLoading}
+              />
+            )}
+
+            {/* Lista de anuncios */}
+            {announcements.map((announcement) => (
+              <AnnouncementCard
+                key={announcement._id}
+                announcement={announcement}
+                showCommentForm={commentForms[announcement._id || ""]}
+                comments={announcement.comments || []}
+                onToggleComment={() =>
+                  toggleCommentForm(announcement._id || "")
+                }
+                onCommentSubmit={(e) =>
+                  handleCommentSubmit(e, announcement._id || "")
+                }
+                onEdit={() => handleEditAnnouncement(announcement)}
+                onDelete={() =>
+                  handleDeleteAnnouncement(announcement._id || "")
+                }
+                onEditComment={handleUpdateComment}
+                onDeleteComment={handleDeleteComment}
+                isAdmin={true}
+              />
+            ))}
+          </div>
+        );
       case "documents":
         return <DocumentList documents={documents} />;
       case "announcements":
@@ -195,7 +254,7 @@ export default function AdminDashboardPage() {
               />
             )}
 
-            {loading ? (
+            {isLoading ? (
               <p>Cargando comunicados...</p>
             ) : error ? (
               <p className="text-red-500">Error: {error}</p>
@@ -218,12 +277,8 @@ export default function AdminDashboardPage() {
                   onDelete={() =>
                     handleDeleteAnnouncement(announcement._id?.toString() || "")
                   }
-                  onEditComment={(announcementId, commentId, newComment) =>
-                    updateComment(announcementId, commentId, newComment)
-                  }
-                  onDeleteComment={(announcementId, commentId) =>
-                    deleteComment(announcementId, commentId)
-                  }
+                  onEditComment={handleUpdateComment}
+                  onDeleteComment={handleDeleteComment}
                   isAdmin={true}
                 />
               ))

@@ -1,4 +1,4 @@
-import { FileText, MessageSquare, Home, Users, Settings, PlusCircle } from "lucide-react";
+import { FileText, MessageSquare, Home, User2Icon } from "lucide-react";
 import { MenuItem } from "@/types";
 
 export const menuItems: MenuItem[] = [
@@ -17,25 +17,13 @@ export const menuItems: MenuItem[] = [
   {
     title: "Gestionar usuarios",
     href: "#usuarios",
-    icon: Users,
+    icon: User2Icon,
     section: "users",
   },
   {
-    title: "Crear anuncio",
-    href: "#crear-anuncio",
-    icon: PlusCircle,
-    section: "create-announcement",
-  },
-  {
-    title: "Configuración",
-    href: "#configuracion",
-    icon: Settings,
-    section: "settings",
-  },
-  { 
-    title: "Volver al inicio", 
-    href: "/", 
-    icon: Home, 
-    section: "home" 
+    title: "Volver al inicio",
+    href: "/",
+    icon: Home,
+    section: "home",
   },
 ];

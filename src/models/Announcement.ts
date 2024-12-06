@@ -1,20 +1,20 @@
-// src/models/Announcement.ts
-import { ObjectId } from "mongodb";
-
-export interface AnnouncementModel {
+export type AnnouncementModel = {
   _id?: string;
   author: string;
-  avatar: string;
   content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  comments: CommentModel[];
-}
-
-export interface CommentModel {
-  _id?: string;
-  name: string;
-  area: string;
-  comment: string;
-  createdAt: Date;
-}
+  avatar?: string;
+  media?: Array<{
+    type: string;
+    url: string;
+    filename: string;
+  }>;
+  comments?: Array<{
+    _id?: string;
+    name: string;
+    area: string;
+    comment: string;
+    createdAt?: Date;
+  }>;
+  createdAt?: Date;
+  updatedAt?: Date;
+};

@@ -7,6 +7,10 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import { CategoryManager } from "./CategoryManager";
+import { useDebounce } from "@/hooks/useDebounce";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { documents } from "../../data/documents";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -23,6 +27,8 @@ export function DocumentList() {
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [scale, setScale] = useState(1.2);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const { toast } = useToast();
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -126,10 +132,27 @@ export function DocumentList() {
     }
   };
 
-  const filteredDocuments =
-    selectedCategory === "all"
-      ? documents
-      : documents.filter((doc) => doc.category === selectedCategory);
+  // Modificar la lógica de filtrado para incluir tanto categoría como búsqueda
+  const filteredDocuments = documents
+    .filter(
+      (doc) =>
+        // Primero filtrar por categoría
+        selectedCategory === "all" || document.category === selectedCategory
+    )
+    .filter(
+      (documents) =>
+        // Luego filtrar por término de búsqueda
+        debouncedSearchTerm === "" ||
+        document.title
+          .toLowerCase()
+          .includes(debouncedSearchTerm.toLowerCase()) ||
+        documents.description
+          .toLowerCase()
+          .includes(debouncedSearchTerm.toLowerCase()) ||
+        documents.category
+          .toLowerCase()
+          .includes(debouncedSearchTerm.toLowerCase())
+    );
 
   return (
     <div className="space-y-4">
@@ -142,6 +165,23 @@ export function DocumentList() {
         categories={categories}
         onCategoriesChange={setCategories}
       />
+
+      {/* Agregar la barra de búsqueda */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+        <Input
+          type="text"
+          placeholder="Buscar por título, descripción o categoría..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+        {searchTerm !== debouncedSearchTerm && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div className="animate-spin h-4 w-4 border-2 border-gray-500 rounded-full border-t-transparent"></div>
+          </div>
+        )}
+      </div>
 
       <div className="flex gap-2 mb-4">
         <select
@@ -156,6 +196,13 @@ export function DocumentList() {
             </option>
           ))}
         </select>
+      </div>
+
+      {/* Mostrar contador de resultados */}
+      <div className="text-sm text-gray-500 mb-4">
+        {filteredDocuments.length === 0
+          ? "No se encontraron documentos"
+          : `Mostrando ${filteredDocuments.length} documento(s)`}
       </div>
 
       {showUploadForm && (
@@ -181,7 +228,8 @@ export function DocumentList() {
                 <h3 className="font-semibold">{doc.title}</h3>
                 <p className="text-sm text-gray-500">{doc.description}</p>
                 <p className="text-xs text-gray-400">
-                  Categoría: {doc.category} | Subido por: {doc.uploadedBy}
+                  Categoría: {doc.category}
+                  {/* | Subido por: {doc.uploadedBy} */}
                 </p>
               </div>
             </div>

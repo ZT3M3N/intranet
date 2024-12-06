@@ -19,7 +19,13 @@ export class AnnouncementService {
     announcement: Omit<
       AnnouncementModel,
       "_id" | "comments" | "createdAt" | "updatedAt"
-    >
+    > & {
+      media?: Array<{
+        type: string;
+        url: string;
+        filename: string;
+      }>;
+    }
   ) {
     try {
       await connectDB();

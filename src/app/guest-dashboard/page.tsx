@@ -53,7 +53,11 @@ export default function DashboardPage() {
   const renderContent = () => {
     switch (activeSection) {
       case "documents":
-        return <DocumentList documents={documents} />;
+        return (
+          <div className="space-y-4">
+            <DocumentList documents={documents} isAdmin={false} />
+          </div>
+        );
       case "announcements":
         return (
           <div className="space-y-4">
@@ -88,7 +92,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#93ab4c]">
       <MobileMenu
         menuItems={menuItems}
         activeSection={activeSection}

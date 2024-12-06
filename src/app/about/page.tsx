@@ -1,5 +1,4 @@
 import {
-  Building2,
   Users,
   Target,
   Compass,
@@ -15,27 +14,15 @@ import isopo from "@/assets/isotipo.png";
 
 function App() {
   return (
-    <div className="min-h-screen bg-[#ebda16]">
+    <div className="min-h-screen bg-[#3e538d]">
       {/* Hero Section */}
-      <header className="shadow-sm">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href={"/"}>
-            <div className="flex items-center space-x-2">
-              <Building2 className="h-6 w-6 text-blue-600" />
-              <span className="font-bold text-xl text-gray-900">
-                Corporativo Yireh
-              </span>
-            </div>
-          </Link>
-        </nav>
-      </header>
 
       <main>
         {/* Welcome Section */}
-        <div className="flex flex-col items-center  text-center py-10 mx-auto bg-[#549c2c]">
+        <div className="flex flex-col items-center  text-center py-10 mx-auto bg-[#93ab4c]">
           <Link href="/" className="mb-8 transition-transform hover:scale-105">
             <Image
-              src={isopo} // Asegúrate de que la ruta sea correcta
+              src={isopo}
               alt="Mascota de la intranet"
               width={100}
               height={100}
@@ -46,7 +33,7 @@ function App() {
           <h1 className="text-5xl font-bold mb-4 animate-title">
             ¡Bienvenido a la intranet!
           </h1>
-          <p className="text-xl mb-8">
+          <p className="text-2xl mb-8 px-10">
             Este es el espacio central para toda la información, comunicación y
             recursos de la empresa.
           </p>
@@ -108,15 +95,15 @@ function App() {
         </div>
 
         {/* Mission & Vision Section */}
-        <div className="bg-[#549c2c] py-16">
+        <div className="bg-[#93ab4c] py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12">
               <div className="space-y-6">
                 <div className="inline-flex items-center space-x-2 text-black">
                   <Target className="h-5 w-5" />
-                  <h2 className="text-2xl font-bold">Nuestra Misión</h2>
+                  <h2 className="text-3xl font-bold">Nuestra Misión</h2>
                 </div>
-                <p className="text-black leading-relaxed">
+                <p className="text-black leading-relaxed text-xl text-justify">
                   Somos la mejor alternativa en la industria farmacéutica
                   dedicada a mantener la satisfacción de nuestros clientes
                   innovando y dispensando productos de alta calidad con precios
@@ -125,11 +112,11 @@ function App() {
                 </p>
               </div>
               <div className="space-y-6">
-                <div className="inline-flex items-center space-x-2 text-black">
+                <div className="inline-flex items-center space-x-2 text-black text-justify">
                   <Compass className="h-5 w-5" />
-                  <h2 className="text-2xl font-bold">Nuestra Visión</h2>
+                  <h2 className="text-3xl font-bold">Nuestra Visión</h2>
                 </div>
-                <p className="text-black leading-relaxed">
+                <p className="text-black leading-relaxed text-xl text-justify">
                   En Farmacias Yireh tenemos la visión de formar el mejor equipo
                   humano, trabajando con profesionalismo, honestidad y
                   compromiso para llegar a ser la mejor cadena farmacéutica a
@@ -141,13 +128,13 @@ function App() {
         </div>
 
         {/* Objectives Section */}
-        <div className="py-16 bg-[#ebda16]">
+        <div className="py-16 bg-[#8d2429]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
                 Objetivos Clave
               </h2>
-              <p className="text-black max-w-2xl mx-auto">
+              <p className="text-black max-w-2xl mx-auto text-2xl">
                 La intranet es tu espacio para acceder a información importante
                 y estar al día con las novedades de la empresa.
               </p>

@@ -32,7 +32,7 @@ export function MobileMenu({
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[240px] sm:w-[300px]">
-        <nav className="flex flex-col gap-4">
+        <nav className="flex flex-col gap-4 ">
           {menuItems.map((item) => (
             <Link
               key={item.title}
