@@ -5,6 +5,7 @@ const mediaSchema = new Schema({
   type: { type: String, required: true },
   url: { type: String, required: true },
   filename: { type: String, required: true },
+  fileId: { type: mongoose.Types.ObjectId, required: true },
 });
 
 // Definir el esquema para comentarios

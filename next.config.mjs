@@ -2,9 +2,9 @@
 const nextConfig = {
   api: {
     bodyParser: {
-      sizeLimit: "20mb",
+      sizeLimit: "50mb",
     },
-    responseLimit: "20mb",
+    responseLimit: "50mb",
   },
   images: {
     remotePatterns: [

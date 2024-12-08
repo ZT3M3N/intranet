@@ -128,10 +128,12 @@ export function AnnouncementCard({
                 >
                   {media.type.startsWith("image/") ? (
                     <>
-                      <img
+                      <Image
                         src={media.url}
                         alt={`Media ${index + 1}`}
-                        className="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
+                        className="object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
+                        width={1000}
+                        height={1000}
                         onClick={() => window.open(media.url, "_blank")}
                         onError={(e) => {
                           console.error("Error loading image:", media.url);
@@ -143,7 +145,7 @@ export function AnnouncementCard({
                     <video
                       src={media.url}
                       controls
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="w-full h-full object-cover rounded-lg"
                     >
                       Tu navegador no soporta la reproducción de videos.
                     </video>
