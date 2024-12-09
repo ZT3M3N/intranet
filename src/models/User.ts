@@ -3,44 +3,34 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   nombres: {
     type: String,
-    required: [true, "El nombre es requerido"],
-    minLength: [2, "El nombre debe tener al menos 2 caracteres"],
+    required: true,
   },
   apellidos: {
     type: String,
-    required: [true, "Los apellidos son requeridos"],
-    minLength: [2, "Los apellidos deben tener al menos 2 caracteres"],
+    required: true,
   },
   email: {
     type: String,
-    required: [true, "El email es requerido"],
+    required: true,
     unique: true,
-    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Por favor ingresa un email válido"],
   },
   area: {
     type: String,
-    required: [true, "El área es requerida"],
-    enum: [
-      "Almacen",
-      "Compras",
-      "Sistemas",
-      "Recursos Humanos",
-      "Contabilidad",
-      "Atención a Clientes",
-      "Marketing",
-      "Comercialización",
-      "Prevención y Riesgos",
-      "Logística",
-      "Cuentas por Pagar",
-      "Gestión y Desarrollo",
-    ],
+    required: true,
   },
   password: {
     type: String,
-    required: [true, "La contraseña es requerida"],
+    required: true,
   },
-}, {
-  timestamps: true,
+  role: {
+    type: String,
+    enum: ["admin", "user"],
+    default: "user",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 export const User = mongoose.models.User || mongoose.model("User", userSchema);

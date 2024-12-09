@@ -13,6 +13,17 @@ import { DashboardContent } from "@/components/Dashboard/DashboardContent";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AnnouncementModel } from "@/models/Announcement";
+import { UserTable } from "@/components/Users/UserTable";
+import { User } from "@/models/User";
+
+interface User {
+  _id: string;
+  nombres: string;
+  apellidos: string;
+  email: string;
+  area: string;
+  role: string;
+}
 
 export default function AdminDashboardPage() {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -36,6 +47,17 @@ export default function AdminDashboardPage() {
   const [commentForms, setCommentForms] = useState<{ [key: string]: boolean }>(
     {}
   );
+
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const response = await fetch("/api/users");
+      const data = await response.json();
+      setUsers(data);
+    };
+    fetchUsers();
+  }, []);
 
   const handleMenuClick = (section: string) => {
     setActiveSection(section);
@@ -161,6 +183,57 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleUpdateUser = async (
+    id: string,
+    userData: Partial<User>,
+    adminPassword: string
+  ) => {
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...userData, adminPassword }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al actualizar usuario");
+      }
+
+      const updatedUser = await response.json();
+      setUsers(users.map((user) => (user._id === id ? updatedUser : user)));
+      toast({
+        title: "Éxito",
+        description: "Usuario actualizado correctamente",
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleDeleteUser = async (id: string, adminPassword: string) => {
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminPassword }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al eliminar usuario");
+      }
+
+      setUsers(users.filter((user) => user._id !== id));
+      toast({
+        title: "Éxito",
+        description: "Usuario eliminado correctamente",
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
+
   useEffect(() => {
     const handleOnline = () => {
       toast({
@@ -240,7 +313,13 @@ export default function AdminDashboardPage() {
           </div>
         );
       case "documents":
-        return <DocumentList documents={documents} />;
+        return (
+          <DocumentList
+            documents={documents}
+            isAdmin={true}
+            showUpload={true}
+          />
+        );
       case "announcements":
         return (
           <div className="space-y-4">
@@ -295,6 +374,19 @@ export default function AdminDashboardPage() {
                 />
               ))
             )}
+          </div>
+        );
+      case "users":
+        return (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Gestionar Usuarios</h2>
+            </div>
+            <UserTable
+              users={users}
+              onUpdate={handleUpdateUser}
+              onDelete={handleDeleteUser}
+            />
           </div>
         );
       default:

@@ -12,7 +12,7 @@ import { DashboardContent } from "@/components/Dashboard/DashboardContent";
 
 export default function DashboardPage() {
   const [open, setOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("dashboard");
+  const [activeSection, setActiveSection] = useState("announcements");
   const [commentForms, setCommentForms] = useState<{ [key: string]: boolean }>(
     {}
   );
@@ -55,7 +55,11 @@ export default function DashboardPage() {
       case "documents":
         return (
           <div className="space-y-4">
-            <DocumentList documents={documents} isAdmin={false} />
+            <DocumentList
+              documents={documents}
+              isAdmin={false}
+              showUpload={false}
+            />
           </div>
         );
       case "announcements":

@@ -14,12 +14,12 @@ export const menuItems: MenuItem[] = [
     icon: MessageSquare,
     section: "announcements",
   },
-  {
-    title: "Gestionar usuarios",
-    href: "#usuarios",
-    icon: User2Icon,
-    section: "users",
-  },
+  // {
+  //   title: "Gestionar usuarios",
+  //   href: "#usuarios",
+  //   icon: User2Icon,
+  //   section: "users",
+  // },
   {
     title: "Volver al inicio",
     href: "/",

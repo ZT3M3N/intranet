@@ -39,7 +39,7 @@ function App() {
           </p>
 
           <div className="flex gap-4 mb-8">
-            <Link href="/guest-dashboard">
+            <Link href="/guest-dashboard/">
               <button className="bg-[#ffef41] text-black px-6 py-2 rounded-md hover:bg-[#e8de71]">
                 Iniciar
               </button>

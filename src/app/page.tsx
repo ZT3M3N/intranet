@@ -30,7 +30,7 @@ export default function Component() {
         </p>
 
         <div className="flex gap-4 mb-8">
-          <Link href="/login">
+          <Link href="/guest-dashboard/">
             <button className="bg-[#1a472a] text-white px-6 py-2 rounded-md hover:bg-[#143d23]">
               Iniciar
             </button>
