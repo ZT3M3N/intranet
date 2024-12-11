@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import isopo from "@/assets/isotipo.png";
+import corporativo from "@/assets/CORPORATIVO.png";
 import { Facebook, Twitter, Youtube } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -13,7 +13,7 @@ export default function Component() {
       <div className="flex flex-col items-center max-w-2xl text-center">
         <Link href="/" className="mb-8 transition-transform hover:scale-105">
           <Image
-            src={isopo}
+            src={corporativo}
             alt="Mascota de la intranet"
             width={100}
             height={100}

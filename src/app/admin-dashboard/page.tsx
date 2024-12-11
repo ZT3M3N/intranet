@@ -88,8 +88,6 @@ export default function AdminDashboardPage() {
   };
 
   const handleCreateAnnouncement = async (formData: FormData) => {
-    console.log("Creating announcement...");
-    console.log("FormData contents before sending:");
     for (let [key, value] of formData.entries()) {
       if (value instanceof File) {
         console.log(key, "File:", value.name, value.type, value.size);
@@ -395,7 +393,7 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#6cae28]">
       <MobileMenu
         menuItems={menuItems}
         activeSection={activeSection}

@@ -6,7 +6,7 @@ import { menuItems } from "@/data/menuItems";
 import { documents } from "@/data/documents";
 import { Sidebar } from "@/components/Navigation/Sidebar";
 import { MobileMenu } from "@/components/Navigation/MobileMenu";
-import { DocumentList } from "@/components/Documents/DocumentList";
+import { DocumentList } from "@/components/Documents/DocumentView-Guest";
 import { AnnouncementCard } from "@/components/Announcements/AnnouncementCard";
 import { DashboardContent } from "@/components/Dashboard/DashboardContent";
 
@@ -65,7 +65,9 @@ export default function DashboardPage() {
       case "announcements":
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4 text-center">Comunicados</h2>
+            <h2 className="text-4xl font-bold mb-4 text-center">
+              Comunicados internos
+            </h2>
             {loading ? (
               <p>Cargando comunicados...</p>
             ) : error ? (
@@ -96,7 +98,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#93ab4c]">
+    <div className="min-h-screen bg-[#6cae28]">
       <MobileMenu
         menuItems={menuItems}
         activeSection={activeSection}

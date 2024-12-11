@@ -1,6 +1,6 @@
 "use client";
 
-import isopo from "@/assets/isotipo.png";
+import corporativo from "@/assets/CORPORATIVO.png";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -78,24 +78,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#ebda16] to-[#549c2c] p-4 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-[#feffe5] p-4 flex flex-col items-center justify-center">
       <Link href="/" className="mb-8 transition-transform hover:scale-105">
         <Image
-          src={isopo}
+          src={corporativo}
           alt="Mascota de la intranet"
-          width={100}
-          height={100}
+          width={300}
+          height={300}
           className="w-auto h-auto"
         />
       </Link>
 
       <div className="w-full max-w-xl grid gap-6 animate-title">
-        <Card className="w-full bg-gradient-to-br from-indigo-100 to-purple-100">
+        <Card className="w-full bg-[#2b3484]">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold text-center">
+            <CardTitle className="text-2xl font-bold text-center text-white">
               Inicia sesión para acceder a la Intranet
             </CardTitle>
-            <CardDescription className="py-2 text-center text-black">
+            <CardDescription className="py-2 text-center text-white">
               Ingresa tus credenciales para acceder como administrador.
             </CardDescription>
           </CardHeader>
@@ -103,7 +103,7 @@ export default function LoginPage() {
             <form onSubmit={handleSignIn}>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="font-bold">
+                  <Label htmlFor="email" className="font-bold text-white">
                     Usuario
                   </Label>
                   <Input
@@ -117,7 +117,7 @@ export default function LoginPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="font-bold">
+                  <Label htmlFor="password" className="font-bold text-white">
                     Contraseña
                   </Label>
                   <Input
@@ -143,7 +143,7 @@ export default function LoginPage() {
               )}
               <Button
                 type="submit"
-                className="w-full mt-6 bg-[#ebda16] hover:bg-[#d1c214] text-black"
+                className="w-full mt-6 bg-[#74b31c] hover:bg-[#26ff4a] text-black"
                 disabled={isLoading}
               >
                 {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}

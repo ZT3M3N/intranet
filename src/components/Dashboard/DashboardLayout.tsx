@@ -20,7 +20,7 @@ export function DashboardLayout({
   onMenuClick,
 }: DashboardLayoutProps) {
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="min-h-screen bg-black">
       <div className="flex">
         {/* Sidebar para desktop */}
         <Sidebar

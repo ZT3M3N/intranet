@@ -6,7 +6,6 @@ import { FileIcon, Trash2 } from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import { CategoryManager } from "./CategoryManager";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -158,13 +157,7 @@ export function DocumentList() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Documentos</h2>
-        <Button onClick={() => setShowUploadForm(true)}>Subir documento</Button>
       </div>
-
-      <CategoryManager
-        categories={categories}
-        onCategoriesChange={setCategories}
-      />
 
       {/* Agregar la barra de búsqueda */}
       <div className="relative">
@@ -181,6 +174,21 @@ export function DocumentList() {
             <div className="animate-spin h-4 w-4 border-2 border-gray-500 rounded-full border-t-transparent"></div>
           </div>
         )}
+      </div>
+
+      <div className="flex gap-2 mb-4">
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="border rounded-md p-2"
+        >
+          <option value="all">Todas las categorías</option>
+          {categories.map((category) => (
+            <option key={category._id} value={category.name}>
+              {category.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Mostrar contador de resultados */}

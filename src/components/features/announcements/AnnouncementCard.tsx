@@ -28,7 +28,7 @@ export function AnnouncementCard({
   );
 
   return (
-    <Card className="mb-4 bg-[#44549c] border-none">
+    <Card className="mb-4 bg-[#2a3387] border-none">
       <Card.Header>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">

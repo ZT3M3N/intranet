@@ -47,11 +47,6 @@ export function AnnouncementCard({
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editedCommentText, setEditedCommentText] = useState("");
 
-  console.log("Announcement data:", announcement);
-  console.log("Media data:", announcement.media);
-
-  console.log("Raw announcement:", JSON.stringify(announcement, null, 2));
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -79,7 +74,7 @@ export function AnnouncementCard({
   };
 
   return (
-    <Card className="mb-4 bg-[#44549c] border-none">
+    <Card className="mb-4 bg-[#2a3387] border-none">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -115,23 +110,25 @@ export function AnnouncementCard({
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-white mb-4">{announcement.content}</p>
+        <p className="text-white mb-4 text-2xl text-center justify-center">
+          {announcement.content}
+        </p>
 
         {announcement.media && announcement.media.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          <div className="justify-center ">
+            {/* grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 */}
             {announcement.media.map((media, index) => {
-              console.log("Processing media item:", media);
               return (
                 <div
                   key={index}
-                  className="relative rounded-lg overflow-hidden bg-white/10"
+                  className="flex rounded-lg overflow-hidden justify-center"
                 >
                   {media.type.startsWith("image/") ? (
                     <>
                       <Image
                         src={media.url}
                         alt={`Media ${index + 1}`}
-                        className="object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
+                        className="object-cover rounded-lg w-4/5 h-4/5 hover:scale-105 transition-transform cursor-pointer"
                         width={1000}
                         height={1000}
                         onClick={() => window.open(media.url, "_blank")}
@@ -189,16 +186,18 @@ export function AnnouncementCard({
           {comments.map((comment) => (
             <div
               key={comment._id}
-              className="flex items-start space-x-2 bg-white/10 p-3 rounded-lg"
+              className="flex items-start space-x-2 bg-white p-3 rounded-lg"
             >
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-10 w-10 bg-black border-black border-2">
                 <AvatarFallback>{comment.name[0]}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold">{comment.name}</p>
-                    <p className="text-sm text-gray-300">{comment.area}</p>
+                    <p className="font-semibold">El usuario: {comment.name} </p>
+                    <p className="text-sm text-black">
+                      Del área de: {comment.area}
+                    </p>
                   </div>
                   {editingCommentId === comment._id ? (
                     <div className="flex-1 ml-2">
@@ -225,7 +224,7 @@ export function AnnouncementCard({
                     </div>
                   ) : (
                     <>
-                      <p>{comment.comment}</p>
+                      <p>Ha comentado: {comment.comment}</p>
                       {isAdmin && (
                         <div className="flex gap-2 ml-2">
                           <Button

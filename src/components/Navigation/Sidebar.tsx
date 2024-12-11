@@ -14,14 +14,14 @@ export function Sidebar({
   onMenuClick,
 }: SidebarProps) {
   return (
-    <aside className="hidden w-64 min-h-screen p-4 bg-[#3e538d] shadow-md md:block">
+    <aside className="hidden w-64 min-h-screen p-4 bg-[#ac1c14] shadow-md md:block">
       <nav className="flex flex-col gap-4">
         {menuItems.map((item) => (
           <Link
             key={item.title}
             href={item.href}
             onClick={() => onMenuClick(item.section)}
-            className={`flex items-center space-x-2 px-2 py-1 text-lg rounded-md transition-colors
+            className={`flex items-center space-x-2 px-2 py-1 text-lg rounded-md transition-colors text-white
               ${
                 activeSection === item.section
                   ? "bg-primary text-primary-foreground"
