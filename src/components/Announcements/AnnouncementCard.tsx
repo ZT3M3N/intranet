@@ -194,9 +194,12 @@ export function AnnouncementCard({
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold">El usuario: {comment.name} </p>
-                    <p className="text-sm text-black">
-                      Del área de: {comment.area}
+                    <p className="font-normal">
+                      El usuario:{" "}
+                      <div className="font-bold">{comment.name}</div>
+                    </p>
+                    <p className="font-normal">
+                      Del área: <div className="font-bold">{comment.area}</div>
                     </p>
                   </div>
                   {editingCommentId === comment._id ? (
@@ -224,10 +227,14 @@ export function AnnouncementCard({
                     </div>
                   ) : (
                     <>
-                      <p>Ha comentado: {comment.comment}</p>
+                      <p className="font-normal">
+                        Ha comentado:{" "}
+                        <div className="font-bold">{comment.comment}</div>
+                      </p>
+
                       {isAdmin && (
                         <div className="flex gap-2 ml-2">
-                          <Button
+                          {/* <Button
                             variant="ghost"
                             size="icon"
                             onClick={() =>
@@ -236,7 +243,7 @@ export function AnnouncementCard({
                             className="h-8 w-8"
                           >
                             <PencilIcon className="h-4 w-4" />
-                          </Button>
+                          </Button> */}
                           <Button
                             variant="ghost"
                             size="icon"

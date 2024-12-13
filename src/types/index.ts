@@ -26,9 +26,12 @@ export interface Announcement {
 }
 
 export interface Comment {
+  _id: string;
   name: string;
   area: string;
   comment: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: Date;
 }
 
 export interface Comments {

@@ -155,8 +155,8 @@ export function DocumentList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Documentos</h2>
+      <div className="justify-between items-center">
+        <h2 className="text-4xl font-bold text-center mt-10">Documentos</h2>
       </div>
 
       {/* Agregar la barra de búsqueda */}
@@ -176,7 +176,7 @@ export function DocumentList() {
         )}
       </div>
 
-      <div className="flex gap-2 mb-4">
+      {/* <div className="flex gap-2 mb-4">
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -189,7 +189,7 @@ export function DocumentList() {
             </option>
           ))}
         </select>
-      </div>
+      </div> */}
 
       {/* Mostrar contador de resultados */}
       <div className="text-base text-black mb-4 font-bold">

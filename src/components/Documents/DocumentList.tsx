@@ -155,10 +155,12 @@ export function DocumentList() {
     );
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Documentos</h2>
-        <Button onClick={() => setShowUploadForm(true)}>Subir documento</Button>
+    <div className="space-y-4 ">
+      <div className="flex justify-between items-center mt-8">
+        <h2 className="text-3xl font-bold text-center">Documentos</h2>
+        <Button variant={"blue"} onClick={() => setShowUploadForm(true)}>
+          Subir documento
+        </Button>
       </div>
 
       <CategoryManager
@@ -195,6 +197,7 @@ export function DocumentList() {
           onUploadSuccess={() => {
             setShowUploadForm(false);
             // Recargar documentos
+            fetchDocuments();
           }}
           onCancel={() => setShowUploadForm(false)}
           categories={categories}
@@ -214,7 +217,7 @@ export function DocumentList() {
                 <p className="text-sm text-gray-500">{doc.description}</p>
                 <p className="text-xs text-gray-400">
                   Categoría: {doc.category}
-                  {/* | Subido por: {doc.uploadedBy} */}
+                  {/* | Subido por: {doc.name} */}
                 </p>
               </div>
             </div>

@@ -38,6 +38,7 @@ export default function AdminDashboardPage() {
     announcements,
     error,
     updateAnnouncement,
+    setAnnouncements,
     deleteAnnouncement,
     addComment,
     updateComment,
@@ -88,17 +89,9 @@ export default function AdminDashboardPage() {
   };
 
   const handleCreateAnnouncement = async (formData: FormData) => {
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(key, "File:", value.name, value.type, value.size);
-      } else {
-        console.log(key, value);
-      }
-    }
-
     try {
       const result = await addAnnouncement(formData);
-      console.log("Announcement created:", result);
+      setAnnouncements((prevAnnouncements) => [result, ...prevAnnouncements]);
       setShowAnnouncementForm(false);
       toast({
         title: "Éxito",
@@ -262,9 +255,10 @@ export default function AdminDashboardPage() {
       case "announcements":
         return (
           <div className="space-y-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">Comunicados</h2>
+            <div className="flex justify-between items-center mt-10">
+              <h2 className="text-3xl font-bold">Comunicados</h2>
               <Button
+                variant={"blue"}
                 onClick={() => {
                   setEditingAnnouncement(null);
                   setShowAnnouncementForm(true);

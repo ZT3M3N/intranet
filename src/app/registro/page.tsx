@@ -3,7 +3,7 @@ import { RegisterForm } from "@/components/auth/RegisterForm";
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#ebda16] to-[#549c2c]">
+    <div className="min-h-screen flex items-center justify-center bg-[#74b31c]">
       <RegisterForm />
     </div>
   );

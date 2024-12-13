@@ -65,7 +65,7 @@ export default function DashboardPage() {
       case "announcements":
         return (
           <div className="space-y-4">
-            <h2 className="text-4xl font-bold mb-4 text-center">
+            <h2 className="text-4xl font-bold mt-10 text-center">
               Comunicados internos
             </h2>
             {loading ? (
