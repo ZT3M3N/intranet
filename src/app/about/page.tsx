@@ -87,10 +87,10 @@ function App() {
         <div className="py-16 bg-[#aa2016]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl font-bold text-white mb-4">
                 Objetivos Clave
               </h2>
-              <p className="text-black max-w-2xl mx-auto text-2xl">
+              <p className="text-white max-w-2xl mx-auto text-2xl">
                 La intranet es tu espacio para acceder a información importante
                 y estar al día con las novedades de la empresa.
               </p>

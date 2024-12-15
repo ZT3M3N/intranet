@@ -9,6 +9,7 @@ import { MobileMenu } from "@/components/Navigation/MobileMenu";
 import { DocumentList } from "@/components/Documents/DocumentView-Guest";
 import { AnnouncementCard } from "@/components/Announcements/AnnouncementCard";
 import { DashboardContent } from "@/components/Dashboard/DashboardContent";
+import { Announcement } from "@/types";
 
 export default function DashboardPage() {
   const [open, setOpen] = useState(false);
@@ -76,17 +77,29 @@ export default function DashboardPage() {
               announcements.map((announcement) => (
                 <AnnouncementCard
                   key={announcement._id?.toString()}
-                  announcement={announcement}
+                  announcement={{
+                    ...announcement,
+                    id: announcement._id?.toString(),
+                    comments:
+                      announcement.comments?.filter(
+                        (comment) => comment.approved
+                      ) || [],
+                  }}
                   showCommentForm={
                     commentForms[announcement._id?.toString() || ""]
                   }
-                  comments={announcement.comments}
+                  comments={
+                    announcement.comments?.filter(
+                      (comment) => comment.approved
+                    ) || []
+                  }
                   onToggleComment={() =>
                     toggleCommentForm(announcement._id?.toString() || "")
                   }
                   onCommentSubmit={(e) =>
                     handleCommentSubmit(e, announcement._id?.toString() || "")
                   }
+                  refetchAnnouncements={refreshAnnouncements}
                 />
               ))
             )}

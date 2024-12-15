@@ -145,4 +145,90 @@ export class AnnouncementService {
       throw new Error("Error al eliminar el comentario");
     }
   }
+
+  static async approveComment(announcementId: string, commentId: string) {
+    try {
+      await connectDB();
+
+      const result = await Announcement.findOneAndUpdate(
+        {
+          _id: announcementId,
+          "comments._id": commentId,
+        },
+        {
+          $set: {
+            "comments.$.approved": true,
+            "comments.$.status": "approved",
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      ).lean(); // Usar lean() para obtener un objeto plano
+
+      if (!result) {
+        throw new Error("Anuncio o comentario no encontrado");
+      }
+
+      // Verificar si el comentario fue actualizado
+      const updatedComment = result.comments.find(
+        (c: any) => c._id.toString() === commentId
+      );
+
+      if (!updatedComment?.approved) {
+        throw new Error("El comentario no se actualizó correctamente");
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Error al aprobar comentario:", error);
+      throw error;
+    }
+  }
+
+  static async rejectComment(announcementId: string, commentId: string) {
+    try {
+      await connectDB();
+      const result = await Announcement.findOneAndUpdate(
+        { _id: announcementId },
+        {
+          $pull: {
+            comments: { _id: commentId },
+          },
+          $set: {
+            updatedAt: new Date(),
+          },
+        },
+        { new: true }
+      );
+
+      if (!result) {
+        throw new Error("Anuncio o comentario no encontrado");
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Error al rechazar comentario:", error);
+      throw new Error("Error al rechazar el comentario");
+    }
+  }
+
+  static async getPendingComments(announcementId: string) {
+    try {
+      await connectDB();
+      const announcement = await Announcement.findById(announcementId);
+      if (!announcement) {
+        return [];
+      }
+      // Modificamos el filtro para considerar tanto approved como status
+      return announcement.comments.filter(
+        (comment: any) =>
+          !comment.approved && (!comment.status || comment.status === "pending")
+      );
+    } catch (error) {
+      console.error("Error al obtener comentarios pendientes:", error);
+      throw new Error("Error al obtener comentarios pendientes");
+    }
+  }
 }

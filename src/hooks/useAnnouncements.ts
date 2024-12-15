@@ -1,13 +1,11 @@
 // src/hooks/useAnnouncements.ts
 import { useState, useEffect } from "react";
 import { AnnouncementModel } from "@/models/Announcement";
-import { useToast } from "@/hooks/use-toast";
 
 export function useAnnouncements() {
   const [announcements, setAnnouncements] = useState<AnnouncementModel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
 
   const fetchAnnouncements = async () => {
     setIsLoading(true);
@@ -70,8 +68,10 @@ export function useAnnouncements() {
         }
       );
       if (!response.ok) throw new Error("Error adding comment");
+      // Recargar los anuncios después de agregar un comentario
       await fetchAnnouncements();
     } catch (err) {
+      console.log(err);
       setError(err instanceof Error ? err.message : "Unknown error");
     }
   };
@@ -181,6 +181,23 @@ export function useAnnouncements() {
     }
   };
 
+  const refreshComments = async (announcementId: string) => {
+    try {
+      const response = await fetch(`/api/announcements/${announcementId}`);
+      if (!response.ok) {
+        throw new Error("Error al actualizar los comentarios");
+      }
+      const updatedAnnouncement = await response.json();
+      setAnnouncements((prev) =>
+        prev.map((ann) =>
+          ann._id === announcementId ? updatedAnnouncement : ann
+        )
+      );
+    } catch (error) {
+      console.error("Error refreshing comments:", error);
+    }
+  };
+
   return {
     announcements,
     isLoading,
@@ -193,5 +210,6 @@ export function useAnnouncements() {
     updateComment,
     deleteComment,
     refetchAnnouncements: fetchAnnouncements,
+    refreshComments,
   };
 }

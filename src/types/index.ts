@@ -30,8 +30,8 @@ export interface Comment {
   name: string;
   area: string;
   comment: string;
-  status: "pending" | "approved" | "rejected";
-  createdAt: Date;
+  approved?: boolean;
+  createdAt?: Date;
 }
 
 export interface Comments {

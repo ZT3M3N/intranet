@@ -10,9 +10,15 @@ const mediaSchema = new Schema({
 
 // Definir el esquema para comentarios
 const commentSchema = new Schema({
-  name: String,
-  area: String,
-  comment: String,
+  name: { type: String, required: true },
+  area: { type: String, required: true },
+  comment: { type: String, required: true },
+  approved: { type: Boolean, default: false },
+  status: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -52,10 +58,13 @@ export interface Media {
 }
 
 export interface Comment {
+  _id: string;
   name: string;
   area: string;
   comment: string;
-  createdAt: Date;
+  approved?: boolean;
+  status?: string;
+  createdAt?: Date;
 }
 
 export interface AnnouncementModel {
@@ -67,4 +76,13 @@ export interface AnnouncementModel {
   comments?: Comment[];
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface CommentModel {
+  _id?: string;
+  content: string;
+  author: string;
+  createdAt: Date;
+  approved: boolean;
+  status?: "pending" | "approved" | "rejected";
 }

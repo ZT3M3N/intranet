@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AnnouncementModel } from "@/models/Announcement";
 import { UserTable } from "@/components/Users/UserTable";
 import { User } from "@/models/User";
+import CommentModeration from "@/components/Comments/CommentModeration";
 
 interface User {
   _id: string;
@@ -282,25 +283,27 @@ export default function AdminDashboardPage() {
 
             {/* Lista de anuncios */}
             {announcements.map((announcement) => (
-              <AnnouncementCard
-                key={announcement._id}
-                announcement={announcement}
-                showCommentForm={commentForms[announcement._id || ""]}
-                comments={announcement.comments || []}
-                onToggleComment={() =>
-                  toggleCommentForm(announcement._id || "")
-                }
-                onCommentSubmit={(e) =>
-                  handleCommentSubmit(e, announcement._id || "")
-                }
-                onEdit={() => handleEditAnnouncement(announcement)}
-                onDelete={() =>
-                  handleDeleteAnnouncement(announcement._id || "")
-                }
-                onEditComment={handleUpdateComment}
-                onDeleteComment={handleDeleteComment}
-                isAdmin={true}
-              />
+              <div key={announcement._id}>
+                <AnnouncementCard
+                  key={announcement._id}
+                  announcement={announcement}
+                  showCommentForm={commentForms[announcement._id || ""]}
+                  comments={announcement.comments || []}
+                  onToggleComment={() =>
+                    toggleCommentForm(announcement._id || "")
+                  }
+                  onCommentSubmit={(e) =>
+                    handleCommentSubmit(e, announcement._id || "")
+                  }
+                  // onEdit={() => handleEditAnnouncement(announcement)}
+                  onDelete={() =>
+                    handleDeleteAnnouncement(announcement._id || "")
+                  }
+                  onEditComment={handleUpdateComment}
+                  onDeleteComment={handleDeleteComment}
+                  isAdmin={true}
+                />
+              </div>
             ))}
           </div>
         );
