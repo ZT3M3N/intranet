@@ -234,14 +234,6 @@ export function DocumentList() {
               >
                 Ver
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDeleteDocument(doc._id)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         ))}
