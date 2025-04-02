@@ -1,15 +1,20 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
-import { AnnouncementModel } from "@/models/Announcement";
-import { Upload, X, Loader2, Send } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Loader2, Send, X } from "lucide-react";
+import { Media } from "@/types";
+import TiptapEditor from "../Editor/TiptapEditor";
 
 interface AnnouncementFormProps {
-  announcement?: Partial<AnnouncementModel>;
-  onSubmit: (data: FormData) => void;
-  onCancel: () => void;
+  announcement?: {
+    _id?: string;
+    author?: string;
+    content?: string;
+    media?: Media[];
+  };
+  onSubmit: (formData: FormData) => Promise<void>;
+  onCancel?: () => void;
   isLoading?: boolean;
 }
 
@@ -21,24 +26,21 @@ export function AnnouncementForm({
 }: AnnouncementFormProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [existingMedia, setExistingMedia] = useState<Media[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [mediaToRemove, setMediaToRemove] = useState<string[]>([]);
+  const [content, setContent] = useState(announcement?.content || "");
+
+  useEffect(() => {
+    if (announcement?.media?.length) {
+      setExistingMedia(announcement.media);
+    }
+  }, [announcement]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) {
-      console.log("No files selected");
-      return;
-    }
+    if (!e.target.files?.length) return;
 
     const files = Array.from(e.target.files);
-    console.log(
-      "Files selected:",
-      files.map((f) => ({
-        name: f.name,
-        type: f.type,
-        size: f.size,
-      }))
-    );
-
     setSelectedFiles(files);
 
     // Crear previews
@@ -49,6 +51,13 @@ export function AnnouncementForm({
     });
   };
 
+  const removeExistingMedia = (fileId: string) => {
+    setExistingMedia(
+      existingMedia.filter((media) => media.fileId.toString() !== fileId)
+    );
+    setMediaToRemove([...mediaToRemove, fileId]);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -56,37 +65,37 @@ export function AnnouncementForm({
     try {
       const formData = new FormData();
 
-      // Agregar campos básicos
+      // Agregar el autor
       const authorInput =
         e.currentTarget.querySelector<HTMLInputElement>('[name="author"]');
-      const contentInput =
-        e.currentTarget.querySelector<HTMLTextAreaElement>('[name="content"]');
-
       if (authorInput?.value) formData.append("author", authorInput.value);
-      if (contentInput?.value) formData.append("content", contentInput.value);
 
-      // Agregar archivos
-      console.log("Selected files before submit:", selectedFiles);
-      selectedFiles.forEach((file, index) => {
-        console.log(`Adding file ${index} to FormData:`, {
-          name: file.name,
-          type: file.type,
-          size: file.size,
-        });
+      // Agregar el contenido del editor
+      formData.append("content", content);
+
+      // Si estamos editando, añadir el ID del anuncio
+      if (announcement?._id) {
+        formData.append("id", announcement._id);
+      }
+
+      // Agregar archivos nuevos
+      selectedFiles.forEach((file) => {
         formData.append("media", file);
       });
 
-      // Log del contenido final del FormData
-      console.log("FormData contents:");
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(key, "File:", {
-            name: value.name,
-            type: value.type,
-            size: value.size,
-          });
-        } else {
-          console.log(key, value);
+      // Agregar IDs de archivos a eliminar
+      if (mediaToRemove.length > 0) {
+        formData.append("mediaToRemove", JSON.stringify(mediaToRemove));
+      }
+
+      // Mantener archivos existentes que no se eliminan
+      if (existingMedia.length > 0) {
+        const keptMedia = existingMedia
+          .filter((media) => !mediaToRemove.includes(media.fileId.toString()))
+          .map((media) => media.fileId);
+
+        if (keptMedia.length > 0) {
+          formData.append("existingMedia", JSON.stringify(keptMedia));
         }
       }
 
@@ -95,9 +104,11 @@ export function AnnouncementForm({
       // Limpiar el formulario
       setSelectedFiles([]);
       setPreviews([]);
+      setMediaToRemove([]);
+      setContent("");
       e.currentTarget.reset();
     } catch (error) {
-      console.error("Error in form submission:", error);
+      console.error("Error en el envío del formulario:", error);
       setError(
         error instanceof Error ? error.message : "Error al crear el anuncio"
       );
@@ -118,12 +129,7 @@ export function AnnouncementForm({
 
       <div className="space-y-2">
         <Label htmlFor="content">Contenido</Label>
-        <Textarea
-          id="content"
-          name="content"
-          defaultValue={announcement?.content}
-          required
-        />
+        <TiptapEditor content={content} onChange={setContent} />
       </div>
 
       <div className="space-y-2">
@@ -139,30 +145,66 @@ export function AnnouncementForm({
         />
       </div>
 
-      {/* Mostrar previews */}
+      {/* Mostrar medios existentes */}
+      {existingMedia.length > 0 && (
+        <div>
+          <Label>Archivos existentes</Label>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {existingMedia.map((media) => (
+              <div key={media.fileId.toString()} className="relative">
+                {media.type.startsWith("image/") ? (
+                  <img
+                    src={media.url}
+                    alt={media.filename}
+                    className="w-full h-32 object-cover rounded"
+                  />
+                ) : (
+                  <video
+                    src={media.url}
+                    className="w-full h-32 object-cover rounded"
+                    controls
+                  />
+                )}
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
+                  onClick={() => removeExistingMedia(media.fileId.toString())}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Mostrar previews de nuevos archivos */}
       {previews.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
-          {previews.map((preview, index) => (
-            <div key={index} className="relative">
-              <img
-                src={preview}
-                alt={`Preview ${index + 1}`}
-                className="w-full h-32 object-cover rounded"
-              />
-              <button
-                type="button"
-                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
-                onClick={() => {
-                  setSelectedFiles((prev) =>
-                    prev.filter((_, i) => i !== index)
-                  );
-                  setPreviews((prev) => prev.filter((_, i) => i !== index));
-                }}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
+        <div>
+          <Label>Nuevos archivos</Label>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {previews.map((preview, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-32 object-cover rounded"
+                />
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
+                  onClick={() => {
+                    setSelectedFiles((prev) =>
+                      prev.filter((_, i) => i !== index)
+                    );
+                    setPreviews((prev) => prev.filter((_, i) => i !== index));
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -187,7 +229,7 @@ export function AnnouncementForm({
           ) : (
             <>
               <Send className="mr-2 h-4 w-4" />
-              {announcement ? "Actualizar" : "Publicar"}
+              {announcement?._id ? "Actualizar" : "Publicar"}
             </>
           )}
         </Button>

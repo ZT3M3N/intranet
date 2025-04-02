@@ -55,6 +55,7 @@ export interface Media {
   type: string;
   url: string;
   filename: string;
+  fileId?: string | any;
 }
 
 export interface Comment {

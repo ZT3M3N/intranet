@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle, Trash2 } from "lucide-react";
+import { MessageCircle, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -86,6 +86,11 @@ export function AnnouncementCard({
     }
   };
 
+  // Función para determinar si el contenido parece ser HTML
+  const isHtmlContent = (content: string): boolean => {
+    return /<[a-z][\s\S]*>/i.test(content);
+  };
+
   return (
     <Card className="mb-4 bg-[#2a3387] border-none">
       <CardHeader>
@@ -102,6 +107,16 @@ export function AnnouncementCard({
           </div>
           {isAdmin && (
             <div className="flex gap-2">
+              {onEdit && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onEdit}
+                  className="h-8 w-8 text-blue-500 hover:text-blue-700"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -115,9 +130,19 @@ export function AnnouncementCard({
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-white mb-4 text-2xl text-center justify-center">
-          {announcement.content}
-        </p>
+        {isHtmlContent(announcement.content) ? (
+          <div
+            className="text-white mb-4 prose prose-invert max-w-none prose-a:text-blue-300 hover:prose-a:text-blue-200 [direction:ltr] announcement-content"
+            dangerouslySetInnerHTML={{ __html: announcement.content }}
+          />
+        ) : (
+          <div
+            className="text-white mb-4 text-2xl text-center justify-center whitespace-pre-wrap [direction:ltr]"
+            style={{ lineHeight: "1.5" }}
+          >
+            {announcement.content}
+          </div>
+        )}
 
         {announcement.media && announcement.media.length > 0 ? (
           <div className="justify-center">
@@ -179,7 +204,7 @@ export function AnnouncementCard({
 
         {showCommentForm && (
           <CommentForm
-            announcementId={announcement.id}
+            announcementId={announcement._id || ""}
             onSubmit={onCommentSubmit}
           />
         )}
@@ -188,7 +213,7 @@ export function AnnouncementCard({
         {isAdmin && (
           <div className="w-full mt-4 mb-4">
             <CommentModeration
-              announcementId={announcement._id}
+              announcementId={announcement._id || ""}
               onCommentUpdate={handleCommentUpdate}
             />
           </div>
@@ -201,21 +226,21 @@ export function AnnouncementCard({
             .map((comment) => (
               <div
                 key={comment._id}
-                className="flex items-start space-x-2 bg-white p-3 rounded-lg"
+                className="flex items-start space-x-2 bg-[#3a44a7] p-3 rounded-lg"
               >
-                <Avatar className="h-10 w-10 bg-black border-black border-2">
+                <Avatar className="h-10 w-10 bg-white border-white border-2">
                   <AvatarFallback>{comment.name[0]}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-normal">
+                      <p className="font-normal text-white">
                         El usuario:{" "}
-                        <div className="font-bold">{comment.name}</div>
+                        <span className="font-bold">{comment.name}</span>
                       </p>
-                      <p className="font-normal">
+                      <p className="font-normal text-white">
                         Del área:{" "}
-                        <div className="font-bold">{comment.area}</div>
+                        <span className="font-bold">{comment.area}</span>
                       </p>
                     </div>
                     {editingCommentId === comment._id ? (
@@ -243,9 +268,9 @@ export function AnnouncementCard({
                       </div>
                     ) : (
                       <>
-                        <p className="font-normal">
+                        <p className="font-normal text-white">
                           Ha comentado:{" "}
-                          <div className="font-bold">{comment.comment}</div>
+                          <span className="font-bold">{comment.comment}</span>
                         </p>
 
                         {isAdmin && (

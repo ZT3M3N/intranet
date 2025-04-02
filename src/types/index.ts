@@ -18,11 +18,20 @@ export interface Documents {
   nom: Document[];
 }
 
+export interface Media {
+  type: string;
+  url: string;
+  filename: string;
+  fileId: string | number;
+}
+
 export interface Announcement {
-  id: number;
+  _id?: string;
   author: string;
-  avatar: string;
   content: string;
+  media?: Media[];
+  avatar?: string;
+  comments?: Comment[];
 }
 
 export interface Comment {
@@ -31,7 +40,7 @@ export interface Comment {
   area: string;
   comment: string;
   approved?: boolean;
-  createdAt?: Date;
+  createdAt?: string;
 }
 
 export interface Comments {

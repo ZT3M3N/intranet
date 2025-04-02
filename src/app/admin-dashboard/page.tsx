@@ -109,7 +109,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleEditAnnouncement = async (announcement: AnnouncementModel) => {
+  const handleEditAnnouncement = (announcement: AnnouncementModel) => {
     setEditingAnnouncement(announcement);
     setShowAnnouncementForm(true);
   };
@@ -272,7 +272,28 @@ export default function AdminDashboardPage() {
             {showAnnouncementForm && (
               <AnnouncementForm
                 announcement={editingAnnouncement || undefined}
-                onSubmit={handleCreateAnnouncement}
+                onSubmit={editingAnnouncement ? 
+                  async (formData) => {
+                    try {
+                      if (editingAnnouncement._id) {
+                        const updated = await updateAnnouncement(editingAnnouncement._id, formData);
+                        toast({
+                          title: "Éxito",
+                          description: "Anuncio actualizado correctamente",
+                        });
+                        setShowAnnouncementForm(false);
+                        setEditingAnnouncement(null);
+                      }
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Error al actualizar el anuncio",
+                        variant: "destructive",
+                      });
+                    }
+                  } : 
+                  handleCreateAnnouncement
+                }
                 onCancel={() => {
                   setShowAnnouncementForm(false);
                   setEditingAnnouncement(null);
@@ -295,7 +316,7 @@ export default function AdminDashboardPage() {
                   onCommentSubmit={(e) =>
                     handleCommentSubmit(e, announcement._id || "")
                   }
-                  // onEdit={() => handleEditAnnouncement(announcement)}
+                  onEdit={() => handleEditAnnouncement(announcement)}
                   onDelete={() =>
                     handleDeleteAnnouncement(announcement._id || "")
                   }
@@ -314,62 +335,6 @@ export default function AdminDashboardPage() {
             isAdmin={true}
             showUpload={true}
           />
-        );
-      case "announcements":
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">Comunicados</h2>
-              <Button onClick={() => setShowAnnouncementForm(true)}>
-                Nuevo Comunicado
-              </Button>
-            </div>
-
-            {showAnnouncementForm && (
-              <AnnouncementForm
-                onSubmit={handleCreateAnnouncement}
-                onCancel={() => setShowAnnouncementForm(false)}
-              />
-            )}
-
-            {editingAnnouncement && (
-              <AnnouncementForm
-                announcement={editingAnnouncement}
-                onSubmit={handleUpdateAnnouncement}
-                onCancel={() => setEditingAnnouncement(null)}
-              />
-            )}
-
-            {isLoading ? (
-              <p>Cargando comunicados...</p>
-            ) : error ? (
-              <p className="text-red-500">Error: {error}</p>
-            ) : (
-              announcements.map((announcement) => (
-                <AnnouncementCard
-                  key={announcement._id?.toString()}
-                  announcement={announcement}
-                  showCommentForm={
-                    commentForms[announcement._id?.toString() || ""]
-                  }
-                  comments={announcement.comments}
-                  onToggleComment={() =>
-                    toggleCommentForm(announcement._id?.toString() || "")
-                  }
-                  onCommentSubmit={(e) =>
-                    handleCommentSubmit(e, announcement._id?.toString() || "")
-                  }
-                  onEdit={() => setEditingAnnouncement(announcement)}
-                  onDelete={() =>
-                    handleDeleteAnnouncement(announcement._id?.toString() || "")
-                  }
-                  onEditComment={handleUpdateComment}
-                  onDeleteComment={handleDeleteComment}
-                  isAdmin={true}
-                />
-              ))
-            )}
-          </div>
         );
       case "users":
         return (

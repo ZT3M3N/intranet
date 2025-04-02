@@ -50,3 +50,187 @@ body {
 .animate-title {
   animation: fadeInUp 2.0s ease-out;
 }
+
+/* Estilos para los comunicados */
+.announcement-content {
+  line-height: 1.5;
+  font-size: 1.1rem;
+}
+
+.announcement-content p {
+  margin-bottom: 1.1em;
+  line-height: 1.6;
+}
+
+.announcement-content ul,
+.announcement-content ol {
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.announcement-content li {
+  margin-bottom: 0.5em;
+}
+
+.announcement-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 1em 0;
+}
+
+.announcement-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.announcement-content th,
+.announcement-content td {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5em;
+}
+
+.announcement-content th {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Estilos para el editor TipTap */
+.ProseMirror {
+  min-height: 200px;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  outline: none;
+  color: #000;
+  background-color: #fff;
+}
+
+.ProseMirror p {
+  margin-bottom: 1em;
+  color: #000;
+}
+
+.ProseMirror > * + * {
+  margin-top: 0.75em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding: 0 1rem;
+  color: #000;
+}
+
+.ProseMirror li {
+  color: #000;
+}
+
+.ProseMirror h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  color: #000;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  color: #000;
+}
+
+.ProseMirror h3 {
+  font-size: 1.17em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  color: #000;
+}
+
+.ProseMirror blockquote {
+  padding-left: 1rem;
+  border-left: 2px solid #e2e8f0;
+  color: #64748b;
+  margin: 1em 0;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  margin: 1em 0;
+}
+
+.ProseMirror a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.ProseMirror a:hover {
+  color: #2563eb;
+}
+
+.ProseMirror code {
+  background-color: #f1f5f9;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25em;
+  font-family: monospace;
+}
+
+.ProseMirror pre {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  padding: 0.75em 1em;
+  border-radius: 0.5em;
+  font-family: monospace;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+/* Estilos para el editor TipTap en modo oscuro */
+.dark .ProseMirror {
+  color: #e2e8f0;
+  background-color: #1e293b;
+}
+
+.dark .ProseMirror p,
+.dark .ProseMirror li,
+.dark .ProseMirror h1,
+.dark .ProseMirror h2,
+.dark .ProseMirror h3 {
+  color: #e2e8f0;
+}
+
+.dark .ProseMirror blockquote {
+  border-left-color: #475569;
+  color: #94a3b8;
+}
+
+.dark .ProseMirror code {
+  background-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .ProseMirror pre {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+/* Estilos específicos para texto en negrita */
+.ProseMirror strong {
+  font-weight: bold;
+  color: #000;
+}
+
+.dark .ProseMirror strong {
+  color: #e2e8f0;
+}
+
+/* Estilos para la alineación de texto */
+.ProseMirror [data-text-align='left'] {
+  text-align: left;
+}
+
+.ProseMirror [data-text-align='center'] {
+  text-align: center;
+}
+
+.ProseMirror [data-text-align='right'] {
+  text-align: right;
+}

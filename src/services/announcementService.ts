@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/mongodb";
-import { Announcement } from "@/lib/mongodb";
+import { Announcement } from "@/models/Announcement";
 import { ObjectId } from "mongodb";
 import { AnnouncementModel, CommentModel } from "@/models/Announcement";
 
@@ -165,14 +165,14 @@ export class AnnouncementService {
           new: true,
           runValidators: true,
         }
-      ).lean(); // Usar lean() para obtener un objeto plano
+      );
 
       if (!result) {
         throw new Error("Anuncio o comentario no encontrado");
       }
 
       // Verificar si el comentario fue actualizado
-      const updatedComment = result.comments.find(
+      const updatedComment = result.comments?.find(
         (c: any) => c._id.toString() === commentId
       );
 
@@ -229,6 +229,58 @@ export class AnnouncementService {
     } catch (error) {
       console.error("Error al obtener comentarios pendientes:", error);
       throw new Error("Error al obtener comentarios pendientes");
+    }
+  }
+
+  static async updateAnnouncementWithMedia(
+    id: string,
+    update: Partial<AnnouncementModel>,
+    newMedia: Array<{ type: string; url: string; filename: string; fileId: string }> = [],
+    mediaToRemove: string[] = [],
+    existingMediaIds: string[] = []
+  ) {
+    try {
+      await connectDB();
+      
+      // Obtener el anuncio actual
+      const currentAnnouncement = await Announcement.findById(id);
+      
+      if (!currentAnnouncement) {
+        throw new Error("Anuncio no encontrado");
+      }
+      
+      // Preparar la operación de actualización
+      const updateOperation: any = {
+        ...update,
+        updatedAt: new Date(),
+      };
+      
+      // Gestionar los medios
+      // 1. Si hay medios existentes, filtrarlos según los que se quieren conservar
+      if (currentAnnouncement.media && currentAnnouncement.media.length > 0) {
+        // Filtrar los medios que no están en la lista de "mediaToRemove"
+        const filteredMedia = currentAnnouncement.media.filter(
+          (media: any) => !mediaToRemove.includes(media.fileId.toString())
+        );
+        
+        // 2. Añadir los nuevos medios
+        updateOperation.media = [...filteredMedia, ...newMedia];
+      } else {
+        // Si no hay medios existentes, simplemente usar los nuevos
+        updateOperation.media = newMedia;
+      }
+      
+      // Realizar la actualización
+      const result = await Announcement.findByIdAndUpdate(
+        id,
+        updateOperation,
+        { new: true }
+      );
+      
+      return result;
+    } catch (error) {
+      console.error("Error al actualizar anuncio con medios:", error);
+      throw new Error("Error al actualizar el anuncio");
     }
   }
 }
